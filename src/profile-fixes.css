@@ -1,0 +1,13 @@
+.profile-file-input {
+  display: none;
+}
+
+.profile-camera {
+  padding: 0;
+  z-index: 2;
+}
+
+.profile-dropdown a {
+  cursor: pointer;
+  text-decoration: none;
+}

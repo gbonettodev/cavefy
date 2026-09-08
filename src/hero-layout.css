@@ -20,3 +20,7 @@
   .main-content:has(.hero-banner) .topbar { left: auto; }
   .main-content:has(.hero-banner) .hero-banner { margin-left: -17px; margin-right: -17px; }
 }
+
+/* Keep the home header and its dropdown above the hero content. */
+.main-content:has(.hero-banner) .topbar { z-index: 10; }
+.main-content:has(.hero-banner) .page-scroll { z-index: 0; }

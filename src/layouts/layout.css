@@ -1,0 +1,18 @@
+@media (min-width: 681px) {
+  .app-layout {
+    align-items: stretch;
+  }
+
+  .sidebar {
+    align-self: flex-start;
+    height: 100vh;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    width: 100%;
+  }
+}
