@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { listar, detalhes, criar, atualizar, remover, adicionarMusica, removerMusica } from '../controllers/playlistController.js';
+import { autenticar } from '../middlewares/auth.js';
+import { uploadCapa } from '../middlewares/upload.js';
+const router = Router();
+router.use(autenticar);
+router.get('/', listar);
+router.get('/:id', detalhes);
+router.post('/', uploadCapa, criar);
+router.put('/:id', uploadCapa, atualizar);
+router.delete('/:id', remover);
+router.post('/:id/musicas/:musicaId', adicionarMusica);
+router.delete('/:id/musicas/:musicaId', removerMusica);
+export default router;

@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { listar, buscarPorId, criar, atualizar, remover } from '../controllers/musicaController.js';
+import { autenticar } from '../middlewares/auth.js';
+import { uploadMusica } from '../middlewares/upload.js';
+const router = Router();
+router.use(autenticar);
+router.get('/', listar);
+router.get('/:id', buscarPorId);
+router.post('/', uploadMusica, criar);
+router.put('/:id', uploadMusica, atualizar);
+router.delete('/:id', remover);
+export default router;

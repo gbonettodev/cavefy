@@ -1,0 +1,3 @@
+import pool from '../database/connection.js';
+export async function listar(_req, res) { const { rows } = await pool.query('SELECT id, nome FROM generos ORDER BY nome'); return res.json(rows); }
+export async function criar(req, res) { const nome = String(req.body.nome || '').trim(); if (nome.length < 2) return res.status(400).json({ mensagem: 'Informe um nome de gênero válido.' }); try { const { rows } = await pool.query('INSERT INTO generos (nome) VALUES ($1) RETURNING id, nome', [nome]); return res.status(201).json(rows[0]); } catch (error) { if (error.code === '23505') return res.status(409).json({ mensagem: 'Este gênero já existe.' }); throw error; } }
