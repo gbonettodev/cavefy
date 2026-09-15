@@ -320,10 +320,6 @@
   font-size: 10px;
   margin-top: 3px;
 }
-.profile-mini > svg {
-  color: #796e63;
-  margin-left: auto;
-}
 .avatar {
   align-items: center;
   background: linear-gradient(135deg, #b77a2e, #71522b);
@@ -335,6 +331,7 @@
   font-weight: 800;
   height: 30px;
   justify-content: center;
+  overflow: hidden;
   width: 30px;
 }
 .avatar.small {
@@ -818,12 +815,15 @@
   height: min(36vw, 370px);
   width: min(36vw, 370px);
 }
+.detail-copy > .eyebrow {
+  margin-bottom: 20px;
+}
 .detail-copy h1 {
   font-family: "Playfair Display", serif;
   font-size: clamp(42px, 6vw, 76px);
   letter-spacing: -2px;
   line-height: 0.97;
-  margin: 11px 0 8px;
+  margin: 0 0 8px;
 }
 .detail-artist {
   color: var(--gold-light);
@@ -1141,9 +1141,9 @@
   bottom: 0;
   display: grid;
   gap: 25px;
-  grid-template-columns: minmax(220px, 1.1fr) minmax(300px, 1.8fr) minmax(
-      130px,
-      0.8fr
+  grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.5fr) minmax(
+      220px,
+      1fr
     );
   height: 88px;
   left: 0;
@@ -1185,15 +1185,10 @@
 .cover.small span {
   font-size: 16px;
 }
-.player-heart {
-  background: none;
-  border: 0;
-  color: var(--gold-light);
-  margin-left: auto;
-}
 .player-controls {
   display: grid;
   gap: 6px;
+  grid-column: 2;
 }
 .control-buttons {
   align-items: center;
@@ -1227,18 +1222,6 @@
   accent-color: var(--gold);
   flex: 1;
   height: 3px;
-}
-.player-volume {
-  align-items: center;
-  color: #928476;
-  display: flex;
-  gap: 11px;
-  justify-content: flex-end;
-}
-.volume-line {
-  background: #514334;
-  height: 4px;
-  width: 90px;
 }
 .spin {
   animation: spin 1s linear infinite;
@@ -1485,9 +1468,6 @@
   .player {
     grid-template-columns: minmax(180px, 1fr) minmax(250px, 1.3fr);
   }
-  .player-volume {
-    display: none;
-  }
 }
 @media (max-width: 680px) {
   .app-layout {
@@ -1639,6 +1619,7 @@
   }
   .player-controls {
     display: block;
+    grid-column: auto;
   }
   .progress {
     display: none;
@@ -1647,9 +1628,6 @@
     justify-content: flex-end;
   }
   .control-buttons button:not(.play-button) {
-    display: none;
-  }
-  .player-heart {
     display: none;
   }
   .cover.small {
@@ -1715,10 +1693,11 @@
 }
 .avatar img,
 .profile-avatar-large img {
-  border-radius: 50%;
+  border-radius: inherit;
+  display: block;
   height: 100%;
-  object-fit: contain;
-  padding: 2px;
+  object-fit: cover;
+  padding: 0;
   width: 100%;
 }
 .profile-dropdown {
@@ -1807,6 +1786,12 @@
   display: flex;
   gap: 20px;
 }
+.profile-avatar-wrapper {
+  flex: 0 0 98px;
+  height: 98px;
+  position: relative;
+  width: 98px;
+}
 .profile-avatar-large {
   align-items: center;
   background: linear-gradient(135deg, #b77a2e, #71522b);
@@ -1814,13 +1799,11 @@
   border-radius: 50%;
   color: #1b1209;
   display: flex;
-  flex: 0 0 92px;
   font-size: 25px;
   font-weight: 800;
   height: 92px;
   justify-content: center;
   overflow: hidden;
-  position: relative;
   width: 92px;
 }
 .profile-camera {
@@ -1901,17 +1884,4 @@
   display: flex;
   gap: 10px;
   justify-content: flex-end;
-}
-.profile-logout {
-  align-items: center;
-  background: none;
-  border: 0;
-  color: #b8796c;
-  display: flex;
-  font-size: 11px;
-  gap: 8px;
-  margin: 8px auto 0;
-}
-.profile-logout:hover {
-  color: #ed9b86;
 }

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Camera, Save, UserRound } from "lucide-react";
+import { ArrowLeft, Camera, Save, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { apiFetch, BASE_URL } from "../services/api";
@@ -30,7 +30,6 @@ export default function ProfilePage() {
   const usuario = useCavefyStore((state) => state.usuario);
   const token = useCavefyStore((state) => state.token);
   const entrar = useCavefyStore((state) => state.entrar);
-  const sair = useCavefyStore((state) => state.sair);
   const navigate = useNavigate();
   const fotoInputRef = useRef(null);
   const email = usuario?.email || "";
@@ -89,16 +88,17 @@ export default function ProfilePage() {
       </div>
       <form className="profile-form" onSubmit={submit}>
         <section className="profile-card profile-identity">
-          <div className="profile-avatar-large" style={{ overflow: "visible" }}>
-            {fotoAtual ? (
-              <img
-                src={fotoAtual}
-                alt={`Foto de perfil de ${usuario?.nome || nome}`}
-                style={{ objectFit: "cover", padding: 0 }}
-              />
-            ) : (
-              <span>{iniciais(usuario?.nome || nome)}</span>
-            )}
+          <div className="profile-avatar-wrapper">
+            <div className="profile-avatar-large">
+              {fotoAtual ? (
+                <img
+                  src={fotoAtual}
+                  alt={`Foto de perfil de ${usuario?.nome || nome}`}
+                />
+              ) : (
+                <span>{iniciais(usuario?.nome || nome)}</span>
+              )}
+            </div>
             <input
               ref={fotoInputRef}
               className="profile-file-input"
@@ -157,15 +157,6 @@ export default function ProfilePage() {
           </button>
         </div>
       </form>
-      <button
-        className="profile-logout"
-        onClick={() => {
-          sair();
-          navigate("/login");
-        }}
-      >
-        <ArrowRight size={16} /> Sair da conta
-      </button>
     </div>
   );
 }

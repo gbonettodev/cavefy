@@ -23,6 +23,17 @@ select,
 textarea {
   font: inherit;
 }
+select {
+  color-scheme: dark;
+}
+select option {
+  background-color: #17120f;
+  color: #efe8db;
+}
+select option:checked {
+  background-color: #c99745;
+  color: #120d08;
+}
 button {
   cursor: pointer;
 }

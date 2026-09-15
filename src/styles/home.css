@@ -1,23 +1,8 @@
 .hero-glow {
   display: none;
 }
-.player-playlist {
-  background: none;
-  border: 0;
-  color: var(--gold-light);
-  cursor: pointer;
-  margin-left: auto;
-  padding: 4px;
-}
-.player-playlist:hover {
-  color: var(--sand);
-}
 .topbar-icon {
   display: none !important;
-}
-.player-volume input {
-  accent-color: var(--gold);
-  width: 90px;
 }
 .main-content:has(.hero-banner) {
   isolation: isolate;

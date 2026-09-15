@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { duration } from "../services/media";
+import { useCavefyStore } from "../store/index";
 import Cover from "../components/Cover";
 import PlaylistPicker from "../components/PlaylistPicker";
 export default function MusicDetailsPage() {
@@ -17,6 +18,7 @@ export default function MusicDetailsPage() {
   const { musicas, playlists, tocar, excluirMusica, reload } =
     useOutletContext();
   const navigate = useNavigate();
+  const usuario = useCavefyStore((state) => state.usuario);
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
   const song = musicas.find((item) => String(item.id) === id);
   if (!song)
@@ -29,6 +31,10 @@ export default function MusicDetailsPage() {
         </button>
       </div>
     );
+  const podeEditar =
+    usuario?.papel === "administrador" ||
+    Number(song.criado_por) === Number(usuario?.id);
+
   return (
     <div className="details-page">
       <button className="back-link" onClick={() => navigate(-1)}>
@@ -64,7 +70,7 @@ export default function MusicDetailsPage() {
             >
               <ListPlus size={18} />
             </button>
-            {song.criado_por && (
+            {podeEditar && (
               <button
                 className="icon-button-dark"
                 onClick={() => navigate(`/musicas/${song.id}/editar`)}
@@ -95,17 +101,15 @@ export default function MusicDetailsPage() {
           <strong>#{String(song.id).padStart(4, "0")}</strong>
         </div>
       </div>
-      {song.criado_por && (
-        <button
-          className="danger-link"
-          onClick={async () => {
-            await excluirMusica(song.id);
-            navigate("/musicas");
-          }}
-        >
-          <Trash2 size={15} /> Excluir esta música
-        </button>
-      )}
+      <button
+        className="danger-link"
+        onClick={async () => {
+          const excluida = await excluirMusica(song.id);
+          if (excluida) navigate("/musicas");
+        }}
+      >
+        <Trash2 size={15} /> Excluir esta música
+      </button>
       {showPlaylistPicker && (
         <PlaylistPicker
           song={song}

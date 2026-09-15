@@ -1,8 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Disc3,
@@ -21,7 +20,6 @@ import { useCavefyStore } from "../store/index";
 import logo from "../assets/cavefy-logo.png";
 import ProfileMenu from "../components/ProfileMenu";
 import Player from "../components/Player";
-import "../styles/layout.css";
 export default function ProtectedLayout() {
   const usuario = useCavefyStore((state) => state.usuario);
   const token = useCavefyStore((state) => state.token);
@@ -51,6 +49,11 @@ export default function ProtectedLayout() {
       setCarregando(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
   async function salvarMusica(data, files, id) {
     const body = new FormData();
     Object.entries(data).forEach(([key, value]) => {
@@ -72,10 +75,17 @@ export default function ProtectedLayout() {
   }
 
   async function excluirMusica(id) {
-    if (!window.confirm("Excluir esta música do catálogo?")) return;
-    await apiFetch("/musicas/" + id, { method: "DELETE" }, token);
-    setMusicas((current) => current.filter((item) => item.id !== id));
-    toast.success("Música removida do catálogo.");
+    if (!window.confirm("Excluir esta música do catálogo?")) return false;
+
+    try {
+      await apiFetch("/musicas/" + id, { method: "DELETE" }, token);
+      setMusicas((current) => current.filter((item) => item.id !== id));
+      toast.success("Música removida do catálogo.");
+      return true;
+    } catch (error) {
+      toast.error(error.message);
+      return false;
+    }
   }
 
   async function criarPlaylist(data) {
@@ -148,7 +158,6 @@ export default function ProtectedLayout() {
                   : "Ouvinte"}
               </small>
             </div>
-            <ChevronDown size={15} />
           </div>
           <button className="logout-button" onClick={logout}>
             <LogOut size={17} /> Sair

@@ -315,7 +315,8 @@ O cadastro e a edição usam `multipart/form-data` com:
 
 - O catálogo, os gêneros e as playlists exigem autenticação.
 - Cada usuário visualiza e gerencia suas próprias playlists.
-- Usuários podem editar e excluir músicas criadas por eles.
+- Usuários podem editar as próprias músicas.
+- Qualquer usuário autenticado pode excluir músicas do catálogo.
 - Administradores podem editar e excluir músicas de outros usuários.
 - Somente administradores podem cadastrar gêneros pela API.
 - O cadastro de usuário começa com o papel `usuario`.

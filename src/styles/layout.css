@@ -1,18 +1,58 @@
 @media (min-width: 681px) {
   .app-layout {
-    align-items: stretch;
+    display: block;
+    min-height: 100dvh;
+    padding-bottom: 0;
   }
 
   .sidebar {
-    align-self: flex-start;
-    height: 100vh;
-    min-height: 100vh;
-    position: sticky;
+    bottom: 0;
+    height: auto;
+    left: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 150px;
+    position: fixed;
     top: 0;
   }
 
+  .app-layout:has(> .player) .sidebar {
+    bottom: 88px;
+  }
+
+  .main-content {
+    margin-left: 246px;
+    min-height: 100dvh;
+    width: calc(100% - 246px);
+  }
+
+  .app-layout:has(> .player) .main-content {
+    padding-bottom: 88px;
+  }
+
   .sidebar-bottom {
-    margin-top: auto;
-    width: 100%;
+    bottom: 18px;
+    left: 16px;
+    margin-top: 0;
+    position: absolute;
+    right: 16px;
+    width: auto;
+  }
+
+  .profile-mini > div:nth-child(2) {
+    min-width: 0;
+  }
+
+  .profile-mini strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 920px) {
+  .main-content {
+    margin-left: 210px;
+    width: calc(100% - 210px);
   }
 }

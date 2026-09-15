@@ -1,27 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {
-  ListPlus,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Volume2,
-} from "lucide-react";
+import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { useCavefyStore } from "../store/index";
 import { duration, mediaUrl } from "../services/media";
 import Cover from "./Cover";
 export default function Player({ musica, fila = [] }) {
   const tocar = useCavefyStore((state) => state.tocar);
-  const navigate = useNavigate();
   const [tocando, setTocando] = useState(Boolean(musica.audio_url));
   const [progresso, setProgresso] = useState(0);
   const [duracaoAudio, setDuracaoAudio] = useState(
     Number(musica.duracao_segundos) || 0,
   );
-  const [volume, setVolume] = useState(0.8);
-  const volumeRef = useRef(0.8);
   const audioRef = useRef(null);
   useEffect(() => {
     const audio = audioRef.current;
@@ -31,7 +20,7 @@ export default function Player({ musica, fila = [] }) {
     if (audio) {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = volumeRef.current;
+      audio.volume = 0.8;
       audio.src = mediaUrl(musica.audio_url);
       if (musica.audio_url) {
         audio.load();
@@ -43,12 +32,6 @@ export default function Player({ musica, fila = [] }) {
     }
     return () => audio?.pause();
   }, [musica]);
-  function ajustarVolume(event) {
-    const value = Number(event.target.value);
-    volumeRef.current = value;
-    setVolume(value);
-    if (audioRef.current) audioRef.current.volume = value;
-  }
   function toggle() {
     if (!musica.audio_url) {
       toast.info("Esta faixa existe no catálogo, mas ainda não possui áudio.");
@@ -128,14 +111,6 @@ export default function Player({ musica, fila = [] }) {
           <strong>{musica.titulo}</strong>
           <span>{musica.artista}</span>
         </div>
-        <button
-          className="player-playlist"
-          type="button"
-          title="Adicionar à playlist"
-          onClick={() => navigate(`/musicas/${musica.id}`)}
-        >
-          <ListPlus size={18} />
-        </button>
       </div>
       <div className="player-controls">
         <div className="control-buttons">
@@ -174,19 +149,6 @@ export default function Player({ musica, fila = [] }) {
           />
           <span>{duration(total)}</span>
         </div>
-      </div>
-      <div className="player-volume">
-        <Volume2 size={18} />
-        <input
-          aria-label="Volume"
-          title="Volume"
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={ajustarVolume}
-        />
       </div>
     </footer>
   );

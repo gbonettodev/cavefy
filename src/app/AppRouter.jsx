@@ -18,6 +18,7 @@ import ProfilePage from "../pages/ProfilePage";
 import ProtectedLayout from "../layouts/ProtectedLayout";
 import "react-toastify/dist/ReactToastify.css";
 import "../styles/app.css";
+import "../styles/layout.css";
 import "../styles/home.css";
 import "../styles/profile.css";
 
