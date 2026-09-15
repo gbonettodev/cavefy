@@ -14,9 +14,7 @@ export function mediaUrl(value) {
 }
 
 export function coverStyle(song) {
-  return song.capa_url
-    ? { backgroundImage: `url(${mediaUrl(song.capa_url)})` }
-    : {};
+  return song.capa_url ? { backgroundImage: `url(${mediaUrl(song.capa_url)})` } : {};
 }
 export function initials(name = "O") {
   return name

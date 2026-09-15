@@ -3,7 +3,21 @@ import { duration } from "../services/media";
 import Cover from "./Cover";
 export default function SongRow({ song, index, onPlay, onOpen }) {
   return (
-    <div className="song-row" onClick={onOpen}>
+    <div
+      className="song-row"
+      role="link"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          (event.key === "Enter" || event.key === " ")
+        ) {
+          event.preventDefault();
+          onOpen?.();
+        }
+      }}
+    >
       <span className="row-number">{String(index).padStart(2, "0")}</span>
       <Cover song={song} size="tiny" />
       <div className="row-info">
@@ -13,6 +27,8 @@ export default function SongRow({ song, index, onPlay, onOpen }) {
       <span className="row-genre">{song.genero || "—"}</span>
       <span className="row-duration">{duration(song.duracao_segundos)}</span>
       <button
+        type="button"
+        aria-label={`Reproduzir ${song.titulo}`}
         onClick={(event) => {
           event.stopPropagation();
           onPlay();

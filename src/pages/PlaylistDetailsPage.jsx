@@ -8,7 +8,7 @@ import { useCavefyStore } from "../store/index";
 import Cover from "../components/Cover";
 export default function PlaylistDetailsPage() {
   const { id } = useParams();
-  const { tocar, reload } = useOutletContext();
+  const { tocar, recarregarPlaylists } = useOutletContext();
   const token = useCavefyStore((state) => state.token);
   const navigate = useNavigate();
   const [playlist, setPlaylist] = useState(null);
@@ -41,7 +41,7 @@ export default function PlaylistDetailsPage() {
         { method: "DELETE" },
         token,
       );
-      await reload();
+      await recarregarPlaylists();
       setPlaylist((current) =>
         current
           ? {
@@ -70,7 +70,11 @@ export default function PlaylistDetailsPage() {
       <div className="empty-state">
         <ListMusic size={30} />
         <h3>Playlist não encontrada</h3>
-        <button className="text-button" onClick={() => navigate("/playlists")}>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => navigate("/playlists")}
+        >
           Voltar para playlists
         </button>
       </div>
@@ -78,7 +82,11 @@ export default function PlaylistDetailsPage() {
   const playable = playlist.musicas.find((song) => song.audio_url);
   return (
     <div className="playlist-details-page">
-      <button className="back-link" onClick={() => navigate("/playlists")}>
+      <button
+        className="back-link"
+        type="button"
+        onClick={() => navigate("/playlists")}
+      >
         <ArrowLeft size={17} /> Voltar para playlists
       </button>
       <section className="playlist-detail-hero">
@@ -101,6 +109,7 @@ export default function PlaylistDetailsPage() {
           <p>{playlist.descricao || "Uma seleção feita por você."}</p>
           <button
             className="button button-gold"
+            type="button"
             disabled={!playable}
             onClick={() => tocar(playable, playlist.musicas)}
           >
@@ -123,20 +132,21 @@ export default function PlaylistDetailsPage() {
         <div className="catalog-list playlist-songs-list">
           {playlist.musicas.map((song, index) => (
             <div className="song-row" key={song.id}>
-              <span className="row-number">
-                {String(index + 1).padStart(2, "0")}
-              </span>
+              <span className="row-number">{String(index + 1).padStart(2, "0")}</span>
               <Cover song={song} size="tiny" />
               <div className="row-info">
                 <strong>{song.titulo}</strong>
                 <span>{song.artista}</span>
               </div>
               <span className="row-genre">{song.genero || "—"}</span>
-              <span className="row-duration">
-                {duration(song.duracao_segundos)}
-              </span>
+              <span className="row-duration">{duration(song.duracao_segundos)}</span>
               <button
-                title={song.audio_url ? "Reproduzir música" : "Sem áudio"}
+                type="button"
+                aria-label={
+                  song.audio_url
+                    ? `Reproduzir ${song.titulo}`
+                    : `${song.titulo} está sem áudio`
+                }
                 onClick={() =>
                   song.audio_url
                     ? tocar(song, playlist.musicas)
@@ -147,7 +157,8 @@ export default function PlaylistDetailsPage() {
               </button>
               <button
                 className="playlist-song-remove"
-                title="Remover da playlist"
+                type="button"
+                aria-label={`Remover ${song.titulo} da playlist`}
                 onClick={() => remover(song)}
               >
                 <X size={15} />
@@ -159,9 +170,7 @@ export default function PlaylistDetailsPage() {
         <div className="empty-state">
           <ListMusic size={30} />
           <h3>Esta playlist está vazia</h3>
-          <p>
-            Adicione músicas pelo botão de playlist na página de cada faixa.
-          </p>
+          <p>Adicione músicas pelo botão de playlist na página de cada faixa.</p>
         </div>
       )}
     </div>

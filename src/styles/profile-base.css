@@ -1,0 +1,224 @@
+.auth-brand span,
+.sidebar-brand span,
+.auth-card h1,
+.hero-copy h1,
+.section-heading h2,
+.cover span,
+.quote-card p,
+.page-intro h1,
+.empty-state h3,
+.detail-copy h1,
+.form-card h2,
+.inline-form h2,
+.playlist-card h2,
+.playlist-modal h2,
+.playlist-detail-hero h1,
+.playlist-songs-heading h2 {
+  font-family: "Inter", system-ui, sans-serif !important;
+}
+.profile-menu {
+  position: relative;
+}
+.profile-menu .top-profile {
+  background: none;
+  border: 0;
+  color: #c9bdaf;
+  cursor: pointer;
+}
+.profile-menu .top-profile:hover {
+  color: var(--gold-light);
+}
+.avatar img,
+.profile-avatar-large img {
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  padding: 0;
+  width: 100%;
+}
+.profile-dropdown {
+  background: #1d1612;
+  border: 1px solid #4d3927;
+  border-radius: 10px;
+  box-shadow: 0 18px 45px #0009;
+  min-width: 215px;
+  padding: 9px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  z-index: 20;
+}
+.profile-dropdown-user {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 10px 12px;
+}
+.profile-dropdown-user strong,
+.profile-dropdown-user small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-dropdown-user strong {
+  font-size: 12px;
+}
+.profile-dropdown-user small {
+  color: #887b6d;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.profile-dropdown button,
+.profile-dropdown a {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  color: #c5b7a7;
+  display: flex;
+  font-size: 11px;
+  gap: 9px;
+  padding: 11px 10px;
+  text-align: left;
+  width: 100%;
+}
+.profile-dropdown button:hover,
+.profile-dropdown a:hover {
+  background: #2b2018;
+  color: var(--gold-light);
+}
+.profile-dropdown button:last-child {
+  color: #d18472;
+}
+.profile-page {
+  margin: 0 auto;
+  max-width: 860px;
+  padding: 31px 0 50px;
+}
+.profile-page-heading {
+  margin: 36px 0 28px;
+}
+.profile-page-heading h1 {
+  font-size: clamp(34px, 5vw, 51px);
+  letter-spacing: -1px;
+  margin: 10px 0 8px;
+}
+.profile-page-heading p {
+  color: #91867a;
+  font-size: 14px;
+  margin: 0;
+}
+.profile-form {
+  display: grid;
+  gap: 16px;
+}
+.profile-card {
+  background: #151110;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 25px;
+}
+.profile-identity {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+}
+.profile-avatar-wrapper {
+  flex: 0 0 98px;
+  height: 98px;
+  position: relative;
+  width: 98px;
+}
+.profile-avatar-large {
+  align-items: center;
+  background: linear-gradient(135deg, #b77a2e, #71522b);
+  border: 3px solid #4c371e;
+  border-radius: 50%;
+  color: #1b1209;
+  display: flex;
+  font-size: 25px;
+  font-weight: 800;
+  height: 92px;
+  justify-content: center;
+  overflow: hidden;
+  width: 92px;
+}
+.profile-camera {
+  align-items: center;
+  background: #20170f;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  bottom: -3px;
+  color: var(--gold-light);
+  cursor: pointer;
+  display: flex;
+  height: 29px;
+  justify-content: center;
+  position: absolute;
+  right: -3px;
+  width: 29px;
+}
+.profile-camera input {
+  display: none;
+}
+.profile-identity h2 {
+  font-size: 19px;
+  margin: 7px 0 5px;
+}
+.profile-identity p,
+.profile-card-heading p {
+  color: #85796d;
+  font-size: 11px;
+  margin: 0;
+}
+.profile-card-heading {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  color: var(--gold-light);
+  display: flex;
+  gap: 11px;
+  margin-bottom: 20px;
+  padding-bottom: 17px;
+}
+.profile-card-heading h2 {
+  color: var(--sand);
+  font-size: 17px;
+  margin: 0 0 3px;
+}
+.profile-field {
+  display: grid;
+  gap: 7px;
+  margin-top: 15px;
+}
+.profile-field > span {
+  color: #d8cdbc;
+  font-size: 11px;
+  font-weight: 700;
+}
+.profile-field > div {
+  align-items: center;
+  background: #100d0b;
+  border: 1px solid #473d33;
+  border-radius: 8px;
+  color: #83776a;
+  display: flex;
+  gap: 10px;
+  padding: 0 13px;
+}
+.profile-field > div:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 151, 69, 0.13);
+}
+.profile-field input {
+  background: none;
+  border: 0;
+  color: var(--sand);
+  outline: 0;
+  padding: 13px 0;
+  width: 100%;
+}
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}

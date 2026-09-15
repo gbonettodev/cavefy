@@ -12,34 +12,39 @@ import {
   X,
 } from "lucide-react";
 import { apiFetch } from "../services/api";
+import { useObjectUrl } from "../hooks/useObjectUrl";
 import { mediaUrl } from "../services/media";
 import { useCavefyStore } from "../store/index";
 import PageIntro from "../components/PageIntro";
 export default function PlaylistsPage() {
-  const { playlists, musicas, tocar, reload } = useOutletContext();
+  const { playlists, tocar, recarregarPlaylists } = useOutletContext();
   const token = useCavefyStore((state) => state.token);
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [coverFile, setCoverFile] = useState(null);
-  const [coverPreview, setCoverPreview] = useState("");
+  const [playingPlaylist, setPlayingPlaylist] = useState(null);
+  const coverPreview = useObjectUrl(coverFile);
+
+  function closeForm() {
+    setOpen(false);
+    setName("");
+    setDescription("");
+    setCoverFile(null);
+  }
+
   async function submit(event) {
     event.preventDefault();
-    if (name.trim().length < 2)
-      return toast.error("Digite um nome para a playlist.");
+    if (name.trim().length < 2) return toast.error("Digite um nome para a playlist.");
     try {
       const body = new FormData();
       body.append("nome", name.trim());
       body.append("descricao", description.trim());
       if (coverFile) body.append("capa", coverFile);
       await apiFetch("/playlists", { method: "POST", body }, token);
-      await reload();
-      setName("");
-      setDescription("");
-      setCoverFile(null);
-      setCoverPreview("");
-      setOpen(false);
+      await recarregarPlaylists();
+      closeForm();
       toast.success("Playlist criada.");
     } catch (error) {
       toast.error(error.message);
@@ -48,24 +53,42 @@ export default function PlaylistsPage() {
   function handleCover(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+    if (
+      !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+      file.size > 5 * 1024 * 1024
+    ) {
       toast.error("Escolha uma imagem de até 5 MB.");
       event.target.value = "";
       return;
     }
     setCoverFile(file);
-    setCoverPreview(URL.createObjectURL(file));
   }
+
   async function excluir(playlist) {
     if (!window.confirm(`Excluir a playlist “${playlist.nome}”?`)) return;
     try {
       await apiFetch(`/playlists/${playlist.id}`, { method: "DELETE" }, token);
-      await reload();
+      await recarregarPlaylists();
       toast.success("Playlist excluída.");
     } catch (error) {
       toast.error(error.message);
     }
   }
+
+  async function reproduzirPlaylist(playlist) {
+    setPlayingPlaylist(playlist.id);
+    try {
+      const details = await apiFetch(`/playlists/${playlist.id}`, {}, token);
+      const playable = details.musicas.find((item) => item.audio_url);
+      if (playable) tocar(playable, details.musicas);
+      else toast.info("Adicione uma música com áudio para reproduzir a playlist.");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setPlayingPlaylist(null);
+    }
+  }
+
   return (
     <>
       <PageIntro
@@ -73,7 +96,11 @@ export default function PlaylistsPage() {
         title="Playlists"
         subtitle="Organize as faixas que contam a sua história."
         action={
-          <button className="button button-gold" onClick={() => setOpen(true)}>
+          <button
+            className="button button-gold"
+            type="button"
+            onClick={() => setOpen(true)}
+          >
             <Plus size={17} /> Nova playlist
           </button>
         }
@@ -84,7 +111,8 @@ export default function PlaylistsPage() {
             <button
               className="close-inline"
               type="button"
-              onClick={() => setOpen(false)}
+              aria-label="Fechar formulário"
+              onClick={closeForm}
             >
               <X size={17} />
             </button>
@@ -109,23 +137,17 @@ export default function PlaylistsPage() {
               />
               <div
                 className="playlist-upload-preview"
-                style={
-                  coverPreview
-                    ? { backgroundImage: `url(${coverPreview})` }
-                    : {}
-                }
+                style={coverPreview ? { backgroundImage: `url(${coverPreview})` } : {}}
               >
                 {!coverPreview && <Album size={22} />}
               </div>
               <div>
-                <strong>
-                  {coverPreview ? "Trocar capa" : "Adicionar capa"}
-                </strong>
+                <strong>{coverPreview ? "Trocar capa" : "Adicionar capa"}</strong>
                 <span>PNG, JPG ou WEBP · até 5 MB</span>
               </div>
               <Upload size={18} />
             </label>
-            <button className="button button-gold">
+            <button className="button button-gold" type="submit">
               Criar playlist <ArrowRight size={15} />
             </button>
           </form>
@@ -136,7 +158,18 @@ export default function PlaylistsPage() {
           <article
             className={`playlist-card playlist-${index % 4}`}
             key={playlist.id}
+            role="link"
+            tabIndex={0}
             onClick={() => navigate(`/playlists/${playlist.id}`)}
+            onKeyDown={(event) => {
+              if (
+                event.target === event.currentTarget &&
+                (event.key === "Enter" || event.key === " ")
+              ) {
+                event.preventDefault();
+                navigate(`/playlists/${playlist.id}`);
+              }
+            }}
           >
             <div
               className="playlist-art"
@@ -161,7 +194,7 @@ export default function PlaylistsPage() {
             <button
               className="playlist-delete"
               type="button"
-              title="Excluir playlist"
+              aria-label={`Excluir playlist ${playlist.nome}`}
               onClick={(event) => {
                 event.stopPropagation();
                 excluir(playlist);
@@ -171,14 +204,12 @@ export default function PlaylistsPage() {
             </button>
             <button
               className="card-play playlist-play"
-              onClick={(event) => {
+              type="button"
+              aria-label={`Reproduzir playlist ${playlist.nome}`}
+              disabled={playingPlaylist === playlist.id}
+              onClick={async (event) => {
                 event.stopPropagation();
-                const playable = musicas.find((item) => item.audio_url);
-                if (playable) tocar(playable, musicas);
-                else
-                  toast.info(
-                    "Adicione uma música com áudio para reproduzir a playlist.",
-                  );
+                await reproduzirPlaylist(playlist);
               }}
             >
               <Play size={18} fill="currentColor" />

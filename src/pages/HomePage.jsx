@@ -7,15 +7,14 @@ import SongRow from "../components/SongRow";
 export default function HomePage() {
   const { musicas, tocar, carregando } = useOutletContext();
   const usuario = useCavefyStore((state) => state.usuario);
-  const reproducoes = useCavefyStore((state) => state.reproducoes);
   const navigate = useNavigate();
-  const first = musicas[0];
+  const first = musicas.find((song) => song.audio_url);
   const nome = primeiroNome(usuario?.nome);
   const faixas = carregando ? [] : musicas;
   const topSong = [...faixas]
-    .filter((song) => song.audio_url && (reproducoes[song.id] || 0) > 0)
-    .sort((a, b) => (reproducoes[b.id] || 0) - (reproducoes[a.id] || 0))[0];
-  const topPlays = topSong ? reproducoes[topSong.id] || 0 : 0;
+    .filter((song) => song.audio_url && Number(song.reproducoes || 0) > 0)
+    .sort((a, b) => Number(b.reproducoes || 0) - Number(a.reproducoes || 0))[0];
+  const topPlays = Number(topSong?.reproducoes || 0);
   return (
     <>
       <section
@@ -37,6 +36,7 @@ export default function HomePage() {
           <p>Descubra novas camadas para o seu dia.</p>
           <button
             className="button button-gold"
+            type="button"
             disabled={!first}
             onClick={() => first && tocar(first, musicas)}
           >
@@ -49,7 +49,11 @@ export default function HomePage() {
           <span className="eyebrow">Feito para você</span>
           <h2>Seu universo em rotação</h2>
         </div>
-        <button className="text-button" onClick={() => navigate("/musicas")}>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => navigate("/musicas")}
+        >
           Ver tudo <ArrowRight size={15} />
         </button>
       </div>
@@ -68,11 +72,10 @@ export default function HomePage() {
         <section className="empty-state home-empty">
           <Music2 size={34} />
           <h3>Sua biblioteca ainda está vazia</h3>
-          <p>
-            Adicione sua primeira música para começar a criar o universo CAVEFY.
-          </p>
+          <p>Adicione sua primeira música para começar a criar o universo CAVEFY.</p>
           <button
             className="button button-gold"
+            type="button"
             onClick={() => navigate("/musicas/novo")}
           >
             <Plus size={16} /> Adicionar primeira música

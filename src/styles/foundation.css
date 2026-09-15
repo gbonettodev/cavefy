@@ -1,0 +1,56 @@
+:root {
+  --ink: #0d0b0b;
+  --panel: #151110;
+  --panel-2: #1d1713;
+  --line: rgba(239, 232, 219, 0.13);
+  --muted: #9b9186;
+  --sand: #efe8db;
+  --gold: #c99745;
+  --gold-light: #e7c37e;
+  --violet: #9d7bff;
+}
+.button {
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 9px;
+  justify-content: center;
+  padding: 12px 19px;
+  color: var(--sand);
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+.button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+  transform: none;
+}
+.button-gold {
+  background: var(--gold);
+  color: #17100a;
+  box-shadow: 0 8px 24px rgba(201, 151, 69, 0.2);
+}
+.button-outline {
+  background: transparent;
+  border: 1px solid #75654e;
+}
+.button-ghost {
+  background: #241d18;
+  color: var(--sand);
+}
+.button-wide {
+  width: 100%;
+}
+.eyebrow {
+  color: var(--gold-light);
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+}

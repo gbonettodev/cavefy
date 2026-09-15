@@ -1,0 +1,76 @@
+.playlist-grid {
+  display: grid;
+  gap: 17px;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+}
+.playlist-card {
+  background: #18120f;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-height: 190px;
+  overflow: hidden;
+  padding: 20px;
+  position: relative;
+}
+.playlist-card:after {
+  background: #c99745;
+  border-radius: 50%;
+  content: "";
+  filter: blur(30px);
+  height: 100px;
+  opacity: 0.2;
+  position: absolute;
+  right: -25px;
+  top: -35px;
+  width: 100px;
+}
+.playlist-art {
+  align-items: flex-end;
+  background: linear-gradient(135deg, #76542b, #25170e);
+  border-radius: 7px;
+  color: #f1d59b;
+  display: flex;
+  height: 81px;
+  justify-content: space-between;
+  padding: 11px;
+  position: relative;
+  width: 81px;
+  z-index: 1;
+}
+.playlist-art span {
+  font-size: 10px;
+}
+.playlist-1 .playlist-art {
+  background: linear-gradient(135deg, #5e3f92, #171126);
+  color: #d2c1ff;
+}
+.playlist-2 .playlist-art {
+  background: linear-gradient(135deg, #27655f, #0e292a);
+}
+.playlist-3 .playlist-art {
+  background: linear-gradient(135deg, #9f4a29, #2c100b);
+}
+.playlist-card-copy {
+  position: relative;
+  z-index: 1;
+}
+.playlist-card h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  margin: 17px 0 6px;
+}
+.playlist-card p {
+  color: #96887a;
+  font-size: 11px;
+  margin: 0 0 11px;
+}
+.playlist-card-copy span {
+  color: #6d6257;
+  font-size: 10px;
+}
+.playlist-play {
+  bottom: 20px;
+  opacity: 1;
+  right: 20px;
+  transform: none;
+}

@@ -1,10 +1,15 @@
-import { Router } from 'express';
-import { cadastrar, login, perfil, atualizarPerfil } from '../controllers/authController.js';
-import { autenticar } from '../middlewares/auth.js';
-import { uploadCapa } from '../middlewares/upload.js';
+import { Router } from "express";
+import {
+  cadastrar,
+  login,
+  perfil,
+  atualizarPerfil,
+} from "../controllers/authController.js";
+import { autenticar } from "../middlewares/auth.js";
+import { uploadCapa } from "../middlewares/upload.js";
 const router = Router();
-router.post('/cadastro', cadastrar);
-router.post('/login', login);
-router.get('/me', autenticar, perfil);
-router.put('/me', autenticar, uploadCapa, atualizarPerfil);
+router.post("/cadastro", cadastrar);
+router.post("/login", login);
+router.get("/me", autenticar, perfil);
+router.put("/me", autenticar, uploadCapa, atualizarPerfil);
 export default router;

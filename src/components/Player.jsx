@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
-import { useCavefyStore } from "../store/index";
 import { duration, mediaUrl } from "../services/media";
 import Cover from "./Cover";
-export default function Player({ musica, fila = [] }) {
-  const tocar = useCavefyStore((state) => state.tocar);
+
+export default function Player({ musica, fila = [], onSelect }) {
   const [tocando, setTocando] = useState(Boolean(musica.audio_url));
   const [progresso, setProgresso] = useState(0);
   const [duracaoAudio, setDuracaoAudio] = useState(
@@ -54,23 +53,16 @@ export default function Player({ musica, fila = [] }) {
     }
   }
   function mudarFaixa(direcao) {
-    const index = fila.findIndex(
-      (item) => String(item.id) === String(musica.id),
-    );
-    const lista =
-      direcao > 0 ? fila.slice(index + 1) : fila.slice(0, index).reverse();
-    const faixa = lista.find((item) => item.criado_por && item.audio_url);
-    if (faixa) tocar(faixa, fila);
+    const index = fila.findIndex((item) => String(item.id) === String(musica.id));
+    const lista = direcao > 0 ? fila.slice(index + 1) : fila.slice(0, index).reverse();
+    const faixa = lista.find((item) => item.audio_url);
+    if (faixa) onSelect(faixa, fila);
   }
   function avancarOuRepetir() {
-    const index = fila.findIndex(
-      (item) => String(item.id) === String(musica.id),
-    );
-    const proxima = fila
-      .slice(index + 1)
-      .find((item) => item.criado_por && item.audio_url);
+    const index = fila.findIndex((item) => String(item.id) === String(musica.id));
+    const proxima = fila.slice(index + 1).find((item) => item.audio_url);
     if (proxima) {
-      tocar(proxima, fila);
+      onSelect(proxima, fila);
       return;
     }
     if (audioRef.current && musica.audio_url) {
@@ -84,10 +76,7 @@ export default function Player({ musica, fila = [] }) {
     setProgresso(audioRef.current?.currentTime || 0);
   }
   function carregarDuracao() {
-    if (
-      audioRef.current?.duration &&
-      Number.isFinite(audioRef.current.duration)
-    )
+    if (audioRef.current?.duration && Number.isFinite(audioRef.current.duration))
       setDuracaoAudio(audioRef.current.duration);
   }
   function buscar(event) {
@@ -116,12 +105,17 @@ export default function Player({ musica, fila = [] }) {
         <div className="control-buttons">
           <button
             type="button"
-            title="Faixa anterior"
+            aria-label="Faixa anterior"
             onClick={() => mudarFaixa(-1)}
           >
             <SkipBack size={17} />
           </button>
-          <button className="play-button" type="button" onClick={toggle}>
+          <button
+            className="play-button"
+            type="button"
+            aria-label={tocando ? "Pausar" : "Reproduzir"}
+            onClick={toggle}
+          >
             {tocando ? (
               <Pause size={19} fill="currentColor" />
             ) : (
@@ -130,7 +124,7 @@ export default function Player({ musica, fila = [] }) {
           </button>
           <button
             type="button"
-            title="Próxima faixa"
+            aria-label="Próxima faixa"
             onClick={() => mudarFaixa(1)}
           >
             <SkipForward size={17} />

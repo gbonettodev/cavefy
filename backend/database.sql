@@ -1,6 +1,7 @@
 -- CAVEFY | PostgreSQL
 DROP TABLE IF EXISTS playlist_musicas CASCADE;
 DROP TABLE IF EXISTS playlists CASCADE;
+DROP TABLE IF EXISTS reproducoes CASCADE;
 DROP TABLE IF EXISTS musicas CASCADE;
 DROP TABLE IF EXISTS generos CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
@@ -33,6 +34,13 @@ CREATE TABLE musicas (
   atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE reproducoes (
+  id BIGSERIAL PRIMARY KEY,
+  musica_id INTEGER NOT NULL REFERENCES musicas(id) ON DELETE CASCADE,
+  usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  reproduzida_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE playlists (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(120) NOT NULL,
@@ -51,6 +59,8 @@ CREATE TABLE playlist_musicas (
 
 CREATE INDEX musicas_titulo_idx ON musicas (LOWER(titulo));
 CREATE INDEX musicas_artista_idx ON musicas (LOWER(artista));
+CREATE INDEX reproducoes_musica_idx ON reproducoes (musica_id);
+CREATE INDEX reproducoes_usuario_idx ON reproducoes (usuario_id);
 
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto_url TEXT;
 

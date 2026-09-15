@@ -1,0 +1,203 @@
+.playlist-art {
+  background-position: center;
+  background-size: cover;
+}
+.playlist-upload {
+  align-items: center;
+  background: #100d0b;
+  border: 1px dashed #504332;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  min-height: 90px;
+  padding: 12px;
+}
+.playlist-upload:hover {
+  border-color: var(--gold);
+}
+.playlist-upload input {
+  display: none;
+}
+.playlist-upload > div:nth-of-type(2) {
+  flex: 1;
+}
+.playlist-upload strong,
+.playlist-upload span {
+  display: block;
+}
+.playlist-upload strong {
+  font-size: 12px;
+}
+.playlist-upload span {
+  color: #766a5d;
+  font-size: 10px;
+  line-height: 1.4;
+  margin-top: 5px;
+}
+.playlist-upload > svg {
+  color: #927442;
+}
+.playlist-upload-preview {
+  align-items: center;
+  background: #271d14;
+  background-position: center;
+  background-size: cover;
+  border-radius: 6px;
+  color: #9b7743;
+  display: flex;
+  height: 60px;
+  justify-content: center;
+  width: 60px;
+}
+.playlist-delete {
+  align-items: center;
+  background: #211713;
+  border: 1px solid #493126;
+  border-radius: 50%;
+  color: #b8796c;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 32px;
+  z-index: 2;
+}
+.playlist-delete:hover {
+  background: #3a1f1b;
+  color: #f0a18c;
+}
+.playlist-modal-backdrop {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 30;
+}
+.playlist-modal {
+  background: #1b1410;
+  border: 1px solid #60451f;
+  border-radius: 14px;
+  box-shadow: 0 24px 80px #000b;
+  max-width: 430px;
+  padding: 28px;
+  position: relative;
+  width: 100%;
+}
+.playlist-modal h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 27px;
+  margin: 8px 0 5px;
+}
+.playlist-modal p {
+  color: #96887a;
+  font-size: 12px;
+  margin: 0 0 20px;
+}
+.playlist-modal form {
+  display: grid;
+  gap: 12px;
+}
+.playlist-modal select {
+  background: #100d0b;
+  border: 1px solid #493b2c;
+  border-radius: 7px;
+  color: var(--sand);
+  padding: 13px;
+  width: 100%;
+}
+.playlist-modal-empty {
+  line-height: 1.6;
+  margin-bottom: 0 !important;
+}
+.playlist-card {
+  cursor: pointer;
+}
+.playlist-details-page {
+  padding: 31px 0 30px;
+}
+.playlist-detail-hero {
+  align-items: center;
+  background: linear-gradient(120deg, #21170f, #151110);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  gap: 35px;
+  grid-template-columns: 230px 1fr;
+  margin: 26px auto 48px;
+  max-width: 1050px;
+  padding: 30px;
+}
+.playlist-detail-art {
+  align-items: center;
+  background: linear-gradient(135deg, #76542b, #25170e);
+  background-position: center;
+  background-size: cover;
+  border-radius: 10px;
+  color: #f1d59b;
+  display: flex;
+  height: 230px;
+  justify-content: center;
+  overflow: hidden;
+  width: 230px;
+}
+.playlist-detail-art.playlist-1 {
+  background: linear-gradient(135deg, #5e3f92, #171126);
+}
+.playlist-detail-art.playlist-2 {
+  background: linear-gradient(135deg, #27655f, #0e292a);
+}
+.playlist-detail-art.playlist-3 {
+  background: linear-gradient(135deg, #9f4a29, #2c100b);
+}
+.playlist-detail-hero h1 {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(42px, 6vw, 72px);
+  letter-spacing: -2px;
+  line-height: 0.98;
+  margin: 10px 0 12px;
+}
+.playlist-detail-hero p {
+  color: #9b8d7f;
+  font-size: 14px;
+  margin: 0 0 26px;
+}
+.playlist-songs-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto 16px;
+  max-width: 1050px;
+}
+.playlist-songs-heading h2 {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  margin: 7px 0 0;
+}
+.playlist-songs-heading > span {
+  color: #796d61;
+  font-size: 11px;
+}
+.playlist-songs-list {
+  margin: auto;
+  max-width: 1050px;
+}
+.playlist-songs-list .song-row {
+  grid-template-columns: 28px 38px minmax(100px, 1fr) 110px 45px 30px 30px;
+}
+.playlist-song-remove {
+  color: #a16f64 !important;
+}
+.playlist-song-remove:hover {
+  color: #ed9b86 !important;
+}
+.playlist-detail-art-image {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}

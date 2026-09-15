@@ -67,12 +67,16 @@ No Windows, o PostgreSQL pode ser configurado pelo pgAdmin. Os comandos `psql` e
 cavefy/
 ├── backend/
 │   ├── database.sql
+│   ├── scripts/               # Manutenção segura dos uploads
 │   ├── src/
+│   │   ├── config/            # Variáveis e regras de ambiente
 │   │   ├── controllers/       # Regras das operações da API
-│   │   ├── database/          # Conexão com PostgreSQL
-│   │   ├── middlewares/       # JWT e upload de arquivos
+│   │   ├── database/          # Conexão e schema incremental
+│   │   ├── middlewares/       # JWT, uploads e tratamento de erros
 │   │   ├── routes/            # Rotas HTTP
+│   │   ├── services/          # Gerenciamento dos arquivos enviados
 │   │   └── validations/       # Schemas do backend
+│   ├── test/                  # Testes automatizados da API
 │   └── uploads/
 │       ├── audios/            # Áudios enviados
 │       └── capas/             # Capas e fotos enviadas
@@ -82,6 +86,7 @@ cavefy/
 │   │   └── AppRouter.jsx      # Configuração das rotas do frontend
 │   ├── assets/                # Logo e imagem principal do CAVEFY
 │   ├── components/            # Componentes reutilizáveis
+│   ├── hooks/                 # Catálogo e URLs temporárias de arquivos
 │   ├── layouts/               # Estrutura compartilhada das páginas autenticadas
 │   ├── pages/                 # Uma página por arquivo
 │   ├── services/              # Comunicação com API e funções de mídia
@@ -98,21 +103,23 @@ cavefy/
 
 As telas não ficam concentradas em um único arquivo. Cada página tem responsabilidade própria:
 
-| Pasta/arquivo | Responsabilidade |
-| --- | --- |
-| `src/pages/AuthPage.jsx` | Login e cadastro |
-| `src/pages/HomePage.jsx` | Início, Top 1 e músicas recentes |
-| `src/pages/CatalogPage.jsx` | Busca e listagem do catálogo |
-| `src/pages/MusicFormPage.jsx` | Cadastro e edição de músicas |
-| `src/pages/MusicDetailsPage.jsx` | Detalhes e ações de uma música |
-| `src/pages/PlaylistsPage.jsx` | Criação e listagem de playlists |
-| `src/pages/PlaylistDetailsPage.jsx` | Faixas de uma playlist |
-| `src/pages/ProfilePage.jsx` | Nome e foto do perfil |
-| `src/layouts/ProtectedLayout.jsx` | Sidebar, header, conteúdo e player |
-| `src/components/` | Menu de perfil, player, capas, linhas e formulários |
-| `src/styles/` | Estilos separados por responsabilidade visual |
-| `src/services/` | `apiFetch`, URLs de mídia e utilitários |
-| `src/store/index.js` | Usuário, token, reproduções e player |
+| Pasta/arquivo                       | Responsabilidade                                    |
+| ----------------------------------- | --------------------------------------------------- |
+| `src/pages/AuthPage.jsx`            | Login e cadastro                                    |
+| `src/pages/HomePage.jsx`            | Início, Top 1 e músicas recentes                    |
+| `src/pages/CatalogPage.jsx`         | Busca e listagem do catálogo                        |
+| `src/pages/MusicFormPage.jsx`       | Cadastro e edição de músicas                        |
+| `src/pages/MusicDetailsPage.jsx`    | Detalhes e ações de uma música                      |
+| `src/pages/PlaylistsPage.jsx`       | Criação e listagem de playlists                     |
+| `src/pages/PlaylistDetailsPage.jsx` | Faixas de uma playlist                              |
+| `src/pages/ProfilePage.jsx`         | Nome e foto do perfil                               |
+| `src/layouts/ProtectedLayout.jsx`   | Sidebar, header, conteúdo e player                  |
+| `src/hooks/useLibrary.js`           | Catálogo, playlists, player e sincronização da API  |
+| `src/hooks/useObjectUrl.js`         | Prévia segura de arquivos locais                    |
+| `src/components/`                   | Menu de perfil, player, capas, linhas e formulários |
+| `src/styles/`                       | Estilos separados por responsabilidade visual       |
+| `src/services/`                     | `apiFetch`, URLs de mídia e utilitários             |
+| `src/store/index.js`                | Sessão, música atual e fila do player               |
 
 ## Configuração do ambiente
 
@@ -139,9 +146,10 @@ DB_NAME=cavefy
 PORT=3001
 JWT_SECRET=troque-por-um-segredo-forte
 FRONTEND_URL=http://localhost:5173
+DB_SSL=false
 ```
 
-`JWT_SECRET` é opcional no código, mas deve ser definido em qualquer ambiente real. Se não for informado, o backend usa um segredo local padrão, apropriado apenas para desenvolvimento.
+Use os arquivos `.env.example` da raiz e do backend como modelos. Em desenvolvimento existe um segredo JWT temporário para facilitar a execução local; em produção, `JWT_SECRET` é obrigatório. `FRONTEND_URL` aceita uma ou mais origens separadas por vírgula.
 
 ## Instalação e execução
 
@@ -161,7 +169,7 @@ Depois execute o schema:
 psql -U postgres -d cavefy -f backend/database.sql
 ```
 
-O arquivo cria as tabelas `usuarios`, `generos`, `musicas`, `playlists` e `playlist_musicas`, além dos índices e gêneros iniciais.
+O arquivo cria as tabelas `usuarios`, `generos`, `musicas`, `reproducoes`, `playlists` e `playlist_musicas`, além dos índices e gêneros iniciais.
 
 > **Atenção:** `backend/database.sql` começa removendo as tabelas existentes com `DROP TABLE ... CASCADE`. Isso apaga os dados dessas tabelas. Use esse arquivo para uma instalação nova ou faça backup antes de executá-lo novamente.
 
@@ -198,39 +206,47 @@ npm run dev
 
 Acesse `http://localhost:5173`.
 
-A tela de login exige que a API esteja disponível para autenticar e carregar os dados do PostgreSQL.`n
+A tela de login exige que a API esteja disponível para autenticar e carregar os dados do PostgreSQL.
+
 ## Scripts disponíveis
 
 ### Raiz do projeto
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Inicia o Vite em desenvolvimento |
-| `npm run build` | Gera o build de produção em `dist/` |
-| `npm run preview` | Serve o build de produção localmente |
-| `npm run lint` | Analisa o código com Oxlint |
+| Comando                | Função                                          |
+| ---------------------- | ----------------------------------------------- |
+| `npm run dev`          | Inicia o Vite em desenvolvimento                |
+| `npm run build`        | Limpa o build anterior e recria a pasta `dist/` |
+| `npm run preview`      | Serve o build de produção localmente            |
+| `npm run lint`         | Analisa frontend, backend e testes com Oxlint   |
+| `npm run format`       | Formata o projeto com Prettier                  |
+| `npm run format:check` | Verifica a formatação sem alterar arquivos      |
+| `npm run test:backend` | Executa os testes automatizados da API          |
+| `npm run check`        | Executa lint, testes e build na sequência       |
 
 ### `backend/`
 
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Inicia a API com Nodemon |
-| `npm start` | Inicia a API com Node.js |
+| Comando                 | Função                                            |
+| ----------------------- | ------------------------------------------------- |
+| `npm run dev`           | Inicia a API com Nodemon                          |
+| `npm start`             | Inicia a API com Node.js                          |
+| `npm test`              | Executa os testes da API                          |
+| `npm run uploads:check` | Lista arquivos que não são mais usados pelo banco |
+| `npm run uploads:clean` | Remove apenas uploads órfãos confirmados          |
 
 ## Rotas do frontend
 
-| Rota | Tela | Proteção |
-| --- | --- | --- |
-| `/login` | Login | Pública |
-| `/cadastro` | Cadastro | Pública |
-| `/dashboard` | Página inicial | Autenticada |
-| `/musicas` | Catálogo | Autenticada |
-| `/musicas/novo` | Nova música | Autenticada |
-| `/musicas/:id` | Detalhes da música | Autenticada |
-| `/musicas/:id/editar` | Editar música | Autenticada |
-| `/playlists` | Playlists | Autenticada |
-| `/playlists/:id` | Detalhes da playlist | Autenticada |
-| `/perfil` | Informações do perfil | Autenticada |
+| Rota                  | Tela                  | Proteção    |
+| --------------------- | --------------------- | ----------- |
+| `/login`              | Login                 | Pública     |
+| `/cadastro`           | Cadastro              | Pública     |
+| `/dashboard`          | Página inicial        | Autenticada |
+| `/musicas`            | Catálogo              | Autenticada |
+| `/musicas/novo`       | Nova música           | Autenticada |
+| `/musicas/:id`        | Detalhes da música    | Autenticada |
+| `/musicas/:id/editar` | Editar música         | Autenticada |
+| `/playlists`          | Playlists             | Autenticada |
+| `/playlists/:id`      | Detalhes da playlist  | Autenticada |
+| `/perfil`             | Informações do perfil | Autenticada |
 
 Usuários não autenticados são redirecionados para `/login` pelo `ProtectedRoute`.
 
@@ -244,13 +260,13 @@ Authorization: Bearer SEU_TOKEN_JWT
 
 ### Saúde e autenticação
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/health` | Verifica se a API está online |
-| `POST` | `/api/auth/cadastro` | Cria usuário e retorna usuário + token |
-| `POST` | `/api/auth/login` | Valida credenciais e retorna usuário + token |
-| `GET` | `/api/auth/me` | Retorna o usuário da sessão atual |
-| `PUT` | `/api/auth/me` | Atualiza nome, e-mail, senha e/ou foto |
+| Método | Endpoint             | Descrição                                    |
+| ------ | -------------------- | -------------------------------------------- |
+| `GET`  | `/health`            | Verifica se a API está online                |
+| `POST` | `/api/auth/cadastro` | Cria usuário e retorna usuário + token       |
+| `POST` | `/api/auth/login`    | Valida credenciais e retorna usuário + token |
+| `GET`  | `/api/auth/me`       | Retorna o usuário da sessão atual            |
+| `PUT`  | `/api/auth/me`       | Atualiza nome, e-mail, senha e/ou foto       |
 
 Cadastro e login recebem JSON:
 
@@ -266,13 +282,14 @@ Para atualizar o perfil, use `multipart/form-data` com os campos `nome`, `email`
 
 ### Músicas
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/musicas` | Lista músicas |
-| `GET` | `/api/musicas/:id` | Busca uma música |
-| `POST` | `/api/musicas` | Cadastra uma música |
-| `PUT` | `/api/musicas/:id` | Atualiza uma música |
-| `DELETE` | `/api/musicas/:id` | Exclui uma música |
+| Método   | Endpoint                       | Descrição                         |
+| -------- | ------------------------------ | --------------------------------- |
+| `GET`    | `/api/musicas`                 | Lista músicas e reproduções       |
+| `GET`    | `/api/musicas/:id`             | Busca uma música                  |
+| `POST`   | `/api/musicas`                 | Cadastra uma música               |
+| `POST`   | `/api/musicas/:id/reproducoes` | Registra uma reprodução           |
+| `PUT`    | `/api/musicas/:id`             | Atualiza uma música               |
+| `DELETE` | `/api/musicas/:id`             | Exclui uma música e seus arquivos |
 
 `GET /api/musicas` aceita os filtros opcionais `busca` e `genero`:
 
@@ -294,22 +311,22 @@ O cadastro e a edição usam `multipart/form-data` com:
 
 ### Gêneros
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/generos` | Lista gêneros disponíveis |
+| Método | Endpoint       | Descrição                        |
+| ------ | -------------- | -------------------------------- |
+| `GET`  | `/api/generos` | Lista gêneros disponíveis        |
 | `POST` | `/api/generos` | Cria gênero; exige administrador |
 
 ### Playlists
 
-| Método | Endpoint | Descrição |
-| --- | --- | --- |
-| `GET` | `/api/playlists` | Lista playlists do usuário |
-| `GET` | `/api/playlists/:id` | Retorna playlist e suas músicas |
-| `POST` | `/api/playlists` | Cria playlist |
-| `PUT` | `/api/playlists/:id` | Atualiza playlist |
-| `DELETE` | `/api/playlists/:id` | Exclui playlist |
-| `POST` | `/api/playlists/:id/musicas/:musicaId` | Adiciona música à playlist |
-| `DELETE` | `/api/playlists/:id/musicas/:musicaId` | Remove música da playlist |
+| Método   | Endpoint                               | Descrição                       |
+| -------- | -------------------------------------- | ------------------------------- |
+| `GET`    | `/api/playlists`                       | Lista playlists do usuário      |
+| `GET`    | `/api/playlists/:id`                   | Retorna playlist e suas músicas |
+| `POST`   | `/api/playlists`                       | Cria playlist                   |
+| `PUT`    | `/api/playlists/:id`                   | Atualiza playlist               |
+| `DELETE` | `/api/playlists/:id`                   | Exclui playlist                 |
+| `POST`   | `/api/playlists/:id/musicas/:musicaId` | Adiciona música à playlist      |
+| `DELETE` | `/api/playlists/:id/musicas/:musicaId` | Remove música da playlist       |
 
 ## Regras de acesso
 
@@ -331,21 +348,30 @@ WHERE email = 'admin@exemplo.com';
 
 ## Uploads e arquivos de mídia
 
-| Tipo | Campos | Limite | Formatos |
-| --- | --- | --- | --- |
-| Áudio de música | `audio` | 25 MB | MP3, WAV, OGG |
-| Capa de música | `capa` | 25 MB no endpoint de música | JPG, PNG, WEBP |
-| Foto de perfil | `capa` | 5 MB | JPG, PNG, WEBP |
-| Capa de playlist | `capa` | 5 MB | JPG, PNG, WEBP |
+| Tipo             | Campos  | Limite                      | Formatos       |
+| ---------------- | ------- | --------------------------- | -------------- |
+| Áudio de música  | `audio` | 25 MB                       | MP3, WAV, OGG  |
+| Capa de música   | `capa`  | 25 MB no endpoint de música | JPG, PNG, WEBP |
+| Foto de perfil   | `capa`  | 5 MB                        | JPG, PNG, WEBP |
+| Capa de playlist | `capa`  | 5 MB                        | JPG, PNG, WEBP |
 
-Os arquivos são gravados em `backend/uploads/audios` e `backend/uploads/capas`. Essa pasta não deve ser apagada se os registros do banco ainda apontarem para os arquivos.
+Os arquivos são gravados em `backend/uploads/audios` e `backend/uploads/capas`. Ao trocar ou excluir uma mídia, a API remove o arquivo anterior. Para conferir arquivos antigos sem apagar nada, use `npm run uploads:check` dentro de `backend`.
 
-## Banco de dados e persistência`n`nTodos os dados de negócio — usuários, músicas, gêneros e playlists — são carregados e persistidos pela API no PostgreSQL. O navegador mantém apenas o usuário e o token JWT da sessão para permitir a continuidade do login após atualizar a página.`n`n## Sessão e segurança
+## Banco de dados e persistência
+
+Todos os dados de negócio — usuários, músicas, gêneros, reproduções e playlists — são carregados e persistidos pela API no PostgreSQL. O Top 1 utiliza a tabela `reproducoes`, portanto não é perdido ao atualizar a página. O navegador mantém apenas o usuário e o token JWT da sessão.
+
+Ao iniciar, a API cria de forma não destrutiva a tabela de reproduções caso ela ainda não exista. Isso permite atualizar uma instalação existente sem executar novamente o `database.sql`.
+
+## Sessão e segurança
 
 - O backend gera tokens JWT com validade de 7 dias.
 - As senhas nunca são armazenadas em texto puro; são transformadas em hash com bcrypt.
 - O frontend guarda o usuário e o token no `localStorage` para manter a sessão após atualizar a página.
-- Em produção, altere `JWT_SECRET`, restrinja `FRONTEND_URL` e não publique arquivos `.env`.
+- Respostas `401` limpam automaticamente uma sessão inválida ou expirada.
+- Helmet adiciona cabeçalhos HTTP de segurança e o CORS aceita somente as origens configuradas.
+- Cadastro, login e perfil possuem limite de tentativas por endereço.
+- Arquivos `.env` estão ignorados pelo Git; somente os exemplos podem ser versionados.
 - Para produção, recomenda-se usar HTTPS, armazenamento de arquivos dedicado e políticas de backup do PostgreSQL.
 
 ## Solução de problemas
@@ -385,11 +411,10 @@ Depois faça uma atualização forçada no navegador com `Ctrl + F5`.
 Antes de considerar uma alteração pronta, execute na raiz:
 
 ```powershell
-npm run lint
-npm run build
+npm run check
 ```
 
-O projeto não possui uma suíte automatizada de testes end-to-end no momento. A verificação atual é feita pelo lint, pelo build de produção e pela checagem manual dos fluxos principais.
+O comando executa lint, testes automatizados da API e build de produção. A suíte atual verifica health check, resposta 404, proteção CORS e geração dos caminhos de mídia. Os fluxos completos de interface ainda devem ser conferidos manualmente antes da entrega.
 
 ## Equipe
 

@@ -11,8 +11,7 @@ export default function PlaylistPicker({ song, playlists, reload, onClose }) {
   const [saving, setSaving] = useState(false);
   async function submit(event) {
     event.preventDefault();
-    if (!selected)
-      return toast.info("Crie uma playlist antes de adicionar músicas.");
+    if (!selected) return toast.info("Crie uma playlist antes de adicionar músicas.");
     setSaving(true);
     try {
       await apiFetch(
@@ -38,7 +37,12 @@ export default function PlaylistPicker({ song, playlists, reload, onClose }) {
         aria-labelledby="playlist-picker-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <button className="close-inline" type="button" onClick={onClose}>
+        <button
+          className="close-inline"
+          type="button"
+          aria-label="Fechar"
+          onClick={onClose}
+        >
           <X size={17} />
         </button>
         <span className="eyebrow">Sua biblioteca</span>
@@ -57,15 +61,13 @@ export default function PlaylistPicker({ song, playlists, reload, onClose }) {
                 </option>
               ))}
             </select>
-            <button className="button button-gold" disabled={saving}>
-              {saving ? "Adicionando..." : "Adicionar música"}{" "}
-              <ListPlus size={16} />
+            <button className="button button-gold" type="submit" disabled={saving}>
+              {saving ? "Adicionando..." : "Adicionar música"} <ListPlus size={16} />
             </button>
           </form>
         ) : (
           <p className="playlist-modal-empty">
-            Você ainda não tem playlists. Crie uma em Playlists e tente
-            novamente.
+            Você ainda não tem playlists. Crie uma em Playlists e tente novamente.
           </p>
         )}
       </div>

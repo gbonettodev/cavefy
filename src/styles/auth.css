@@ -1,0 +1,147 @@
+/* auth */
+.auth-screen {
+  align-items: center;
+  background: radial-gradient(circle at 50% 0%, #2a2118 0, #0d0b0b 48%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 40px 20px;
+  position: relative;
+}
+.auth-card {
+  background: rgba(21, 17, 16, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 30px 80px #0008;
+  max-width: 430px;
+  padding: 42px;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  backdrop-filter: blur(8px);
+}
+.auth-brand {
+  align-items: center;
+  display: flex;
+  gap: 11px;
+  justify-content: center;
+}
+.auth-brand img {
+  height: 42px;
+  object-fit: contain;
+  width: 42px;
+}
+.auth-brand span,
+.sidebar-brand span {
+  font-family: "Playfair Display", serif;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 5px;
+}
+.auth-kicker {
+  color: #776c61;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin: 17px 0 35px;
+  text-align: center;
+}
+.auth-card h1 {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.05;
+  margin: 0;
+  text-align: center;
+}
+.auth-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 13px auto 29px;
+  max-width: 290px;
+  text-align: center;
+}
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+.field {
+  display: grid;
+  gap: 7px;
+}
+.field > span {
+  color: #d8cdbc;
+  font-size: 12px;
+  font-weight: 700;
+}
+.field input,
+.field select,
+.field textarea,
+.inline-form input {
+  background: #100d0b;
+  border: 1px solid #473d33;
+  border-radius: 9px;
+  color: var(--sand);
+  outline: none;
+  padding: 13px 14px;
+  transition: 0.2s;
+  width: 100%;
+}
+.field textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.inline-form input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 151, 69, 0.13);
+}
+.field input::placeholder,
+.field textarea::placeholder,
+.inline-form input::placeholder {
+  color: #685e54;
+}
+.field-error {
+  color: #ee937c;
+  font-size: 11px;
+}
+.auth-switch {
+  color: #81776c;
+  font-size: 12px;
+  margin-top: 30px;
+  text-align: center;
+}
+.auth-switch button {
+  background: none;
+  border: 0;
+  color: var(--sand);
+  font-weight: 700;
+  text-decoration: underline;
+}
+.auth-footer {
+  bottom: 17px;
+  color: #5b5148;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  position: absolute;
+}
+.auth-orbit {
+  border: 1px solid #c9974525;
+  border-radius: 50%;
+  height: 470px;
+  position: absolute;
+  width: 470px;
+}
+.orbit-one {
+  left: -270px;
+  top: 8%;
+}
+.orbit-two {
+  bottom: -320px;
+  right: -230px;
+  width: 570px;
+  height: 570px;
+}

@@ -1,32 +1,37 @@
 import { useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Disc3,
-  Edit3,
-  ListPlus,
-  Music2,
-  Play,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Disc3, Edit3, ListPlus, Music2, Play, Trash2 } from "lucide-react";
 import { duration } from "../services/media";
 import { useCavefyStore } from "../store/index";
 import Cover from "../components/Cover";
 import PlaylistPicker from "../components/PlaylistPicker";
 export default function MusicDetailsPage() {
   const { id } = useParams();
-  const { musicas, playlists, tocar, excluirMusica, reload } =
+  const { musicas, playlists, tocar, excluirMusica, recarregarPlaylists, carregando } =
     useOutletContext();
   const navigate = useNavigate();
   const usuario = useCavefyStore((state) => state.usuario);
   const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
   const song = musicas.find((item) => String(item.id) === id);
+
+  if (carregando)
+    return (
+      <div className="empty-state" role="status">
+        <Disc3 className="spin" size={30} />
+        <p>Carregando música...</p>
+      </div>
+    );
+
   if (!song)
     return (
       <div className="empty-state">
         <Music2 size={30} />
         <h3>Música não encontrada</h3>
-        <button className="text-button" onClick={() => navigate("/musicas")}>
+        <button
+          className="text-button"
+          type="button"
+          onClick={() => navigate("/musicas")}
+        >
           Voltar ao catálogo
         </button>
       </div>
@@ -37,7 +42,7 @@ export default function MusicDetailsPage() {
 
   return (
     <div className="details-page">
-      <button className="back-link" onClick={() => navigate(-1)}>
+      <button className="back-link" type="button" onClick={() => navigate(-1)}>
         <ArrowLeft size={17} /> Voltar ao catálogo
       </button>
       <section className="detail-hero">
@@ -54,6 +59,7 @@ export default function MusicDetailsPage() {
           <div className="detail-actions">
             <button
               className="button button-gold"
+              type="button"
               onClick={() => tocar(song, musicas)}
             >
               {song.audio_url ? (
@@ -65,7 +71,8 @@ export default function MusicDetailsPage() {
             </button>
             <button
               className="icon-button-dark"
-              title="Adicionar à playlist"
+              type="button"
+              aria-label="Adicionar à playlist"
               onClick={() => setShowPlaylistPicker(true)}
             >
               <ListPlus size={18} />
@@ -73,6 +80,8 @@ export default function MusicDetailsPage() {
             {podeEditar && (
               <button
                 className="icon-button-dark"
+                type="button"
+                aria-label="Editar música"
                 onClick={() => navigate(`/musicas/${song.id}/editar`)}
               >
                 <Edit3 size={17} />
@@ -92,9 +101,7 @@ export default function MusicDetailsPage() {
         </div>
         <div>
           <span>Disponibilidade</span>
-          <strong>
-            {song.audio_url ? "Áudio disponível" : "Somente catálogo"}
-          </strong>
+          <strong>{song.audio_url ? "Áudio disponível" : "Somente catálogo"}</strong>
         </div>
         <div>
           <span>Código</span>
@@ -103,6 +110,7 @@ export default function MusicDetailsPage() {
       </div>
       <button
         className="danger-link"
+        type="button"
         onClick={async () => {
           const excluida = await excluirMusica(song.id);
           if (excluida) navigate("/musicas");
@@ -114,7 +122,7 @@ export default function MusicDetailsPage() {
         <PlaylistPicker
           song={song}
           playlists={playlists}
-          reload={reload}
+          reload={recarregarPlaylists}
           onClose={() => setShowPlaylistPicker(false)}
         />
       )}

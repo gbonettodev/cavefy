@@ -2,18 +2,30 @@ import { create } from "zustand";
 
 const savedUser = localStorage.getItem("cavefy_user");
 const savedToken = localStorage.getItem("cavefy_token");
-const initialUser = savedUser ? JSON.parse(savedUser) : null;
+
+function readSavedUser() {
+  if (!savedUser || !savedToken) return null;
+  try {
+    const user = JSON.parse(savedUser);
+    return user && typeof user === "object" && user.id ? user : null;
+  } catch {
+    localStorage.removeItem("cavefy_user");
+    localStorage.removeItem("cavefy_token");
+    return null;
+  }
+}
+
+const initialUser = readSavedUser();
 
 export const useCavefyStore = create((set, get) => ({
   usuario: initialUser,
-  token: savedToken || "",
-  reproducoes: {},
+  token: initialUser ? savedToken : "",
   musicaAtual: null,
   fila: [],
   entrar: (usuario, token) => {
     localStorage.setItem("cavefy_user", JSON.stringify(usuario));
     localStorage.setItem("cavefy_token", token);
-    set({ usuario, token, reproducoes: {} });
+    set({ usuario, token });
   },
   sair: () => {
     localStorage.removeItem("cavefy_user");
@@ -21,19 +33,18 @@ export const useCavefyStore = create((set, get) => ({
     set({
       usuario: null,
       token: "",
-      reproducoes: {},
       musicaAtual: null,
       fila: [],
     });
   },
   tocar: (musica, fila = []) => {
-    const usuario = get().usuario;
-    if (!musica?.audio_url || !usuario)
-      return set({ musicaAtual: musica, fila });
-    const reproducoes = {
-      ...get().reproducoes,
-      [musica.id]: (get().reproducoes[musica.id] || 0) + 1,
-    };
-    set({ musicaAtual: musica, fila, reproducoes });
+    if (!musica?.audio_url || !get().usuario) return false;
+    set({ musicaAtual: musica, fila });
+    return true;
   },
+  parar: () => set({ musicaAtual: null, fila: [] }),
 }));
+
+window.addEventListener("cavefy:unauthorized", () => {
+  useCavefyStore.getState().sair();
+});

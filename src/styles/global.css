@@ -44,3 +44,16 @@ a {
 #root {
   min-height: 100vh;
 }
+
+.route-loader {
+  align-items: center;
+  background: #0d0b0b;
+  color: #d8a447;
+  display: flex;
+  font-weight: 700;
+  inset: 0;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  position: fixed;
+  text-transform: uppercase;
+}

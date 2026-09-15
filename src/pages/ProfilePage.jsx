@@ -2,29 +2,10 @@ import { useRef, useState } from "react";
 import { ArrowLeft, Camera, Save, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { apiFetch, BASE_URL } from "../services/api";
+import { useObjectUrl } from "../hooks/useObjectUrl";
+import { apiFetch } from "../services/api";
+import { initials, mediaUrl } from "../services/media";
 import { useCavefyStore } from "../store/index";
-
-function imagemDoPerfil(value) {
-  if (!value) return "";
-  if (value.startsWith("data:") || value.startsWith("blob:")) return value;
-  try {
-    const parsed = new URL(value, window.location.origin);
-    return parsed.pathname.startsWith("/uploads/")
-      ? `${new URL(BASE_URL).origin}${parsed.pathname}`
-      : value;
-  } catch {
-    return value;
-  }
-}
-function iniciais(nome = "O") {
-  return nome
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 export default function ProfilePage() {
   const usuario = useCavefyStore((state) => state.usuario);
@@ -35,38 +16,35 @@ export default function ProfilePage() {
   const email = usuario?.email || "";
   const [nome, setNome] = useState(usuario?.nome || "");
   const [foto, setFoto] = useState(null);
-  const [fotoPreview, setFotoPreview] = useState("");
   const [saving, setSaving] = useState(false);
+  const fotoPreview = useObjectUrl(foto);
+
   function escolherFoto(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+    if (
+      !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
+      file.size > 5 * 1024 * 1024
+    ) {
       toast.error("Escolha uma imagem de até 5 MB.");
       event.target.value = "";
       return;
     }
     setFoto(file);
-    setFotoPreview(URL.createObjectURL(file));
   }
+
   async function submit(event) {
     event.preventDefault();
     if (nome.trim().length < 2) return toast.error("Digite um nome válido.");
     setSaving(true);
     try {
-      {
-        const body = new FormData();
-        body.append("nome", nome.trim());
-        body.append("email", email);
-        if (foto) body.append("capa", foto);
-        const result = await apiFetch(
-          "/auth/me",
-          { method: "PUT", body },
-          token,
-        );
-        entrar(result.usuario, result.token || token);
-      }
+      const body = new FormData();
+      body.append("nome", nome.trim());
+      body.append("email", email);
+      if (foto) body.append("capa", foto);
+      const result = await apiFetch("/auth/me", { method: "PUT", body }, token);
+      entrar(result.usuario, result.token || token);
       setFoto(null);
-      setFotoPreview("");
       toast.success("Nome e foto do perfil atualizados.");
     } catch (error) {
       toast.error(error.message);
@@ -74,11 +52,11 @@ export default function ProfilePage() {
       setSaving(false);
     }
   }
-  const fotoSalva = imagemDoPerfil(usuario?.foto_url);
+  const fotoSalva = mediaUrl(usuario?.foto_url);
   const fotoAtual = fotoPreview || fotoSalva;
   return (
     <div className="profile-page">
-      <button className="back-link" onClick={() => navigate(-1)}>
+      <button className="back-link" type="button" onClick={() => navigate(-1)}>
         <ArrowLeft size={17} /> Voltar
       </button>
       <div className="profile-page-heading">
@@ -96,7 +74,7 @@ export default function ProfilePage() {
                   alt={`Foto de perfil de ${usuario?.nome || nome}`}
                 />
               ) : (
-                <span>{iniciais(usuario?.nome || nome)}</span>
+                <span>{initials(usuario?.nome || nome)}</span>
               )}
             </div>
             <input
@@ -109,7 +87,7 @@ export default function ProfilePage() {
             <button
               type="button"
               className="profile-camera"
-              title="Alterar foto"
+              aria-label="Alterar foto"
               onClick={() => fotoInputRef.current?.click()}
             >
               <Camera size={17} />
@@ -137,10 +115,7 @@ export default function ProfilePage() {
             <span>Nome</span>
             <div>
               <UserRound size={17} />
-              <input
-                value={nome}
-                onChange={(event) => setNome(event.target.value)}
-              />
+              <input value={nome} onChange={(event) => setNome(event.target.value)} />
             </div>
           </label>
         </section>
@@ -152,7 +127,7 @@ export default function ProfilePage() {
           >
             Cancelar
           </button>
-          <button className="button button-gold" disabled={saving}>
+          <button className="button button-gold" type="submit" disabled={saving}>
             {saving ? "Salvando..." : "Salvar informações"} <Save size={16} />
           </button>
         </div>

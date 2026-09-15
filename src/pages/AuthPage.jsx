@@ -25,15 +25,13 @@ export default function AuthScreen({ cadastro = false }) {
   async function submit(data) {
     setEnviando(true);
     try {
-      const result = await apiFetch(
-        modoCadastro ? "/auth/cadastro" : "/auth/login",
-        { method: "POST", body: JSON.stringify(data) },
-      );
+      const result = await apiFetch(modoCadastro ? "/auth/cadastro" : "/auth/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
       entrar(result.usuario, result.token);
       toast.success(
-        modoCadastro
-          ? "Conta criada. Bem-vindo ao CAVEFY!"
-          : "Bem-vindo de volta!",
+        modoCadastro ? "Conta criada. Bem-vindo ao CAVEFY!" : "Bem-vindo de volta!",
       );
       navigate("/dashboard");
     } catch (error) {
@@ -57,9 +55,7 @@ export default function AuthScreen({ cadastro = false }) {
         </div>
         <p className="auth-kicker">MÚSICA DA IDADE DA PEDRA</p>
         <h1>
-          {modoCadastro
-            ? "Encontre seu próximo som."
-            : "Volte para a sua caverna."}
+          {modoCadastro ? "Encontre seu próximo som." : "Volte para a sua caverna."}
         </h1>
         <p className="auth-subtitle">
           {modoCadastro
@@ -69,10 +65,7 @@ export default function AuthScreen({ cadastro = false }) {
         <form className="auth-form" onSubmit={form.handleSubmit(submit)}>
           {modoCadastro && (
             <Field label="Nome" error={form.formState.errors.nome?.message}>
-              <input
-                {...form.register("nome")}
-                placeholder="Como podemos te chamar?"
-              />
+              <input {...form.register("nome")} placeholder="Como podemos te chamar?" />
             </Field>
           )}
           <Field label="E-mail" error={form.formState.errors.email?.message}>
@@ -89,10 +82,7 @@ export default function AuthScreen({ cadastro = false }) {
               placeholder="Mínimo de 6 caracteres"
             />
           </Field>
-          <button
-            className="button button-gold button-wide"
-            disabled={enviando}
-          >
+          <button className="button button-gold button-wide" disabled={enviando}>
             {enviando
               ? "Entrando..."
               : modoCadastro

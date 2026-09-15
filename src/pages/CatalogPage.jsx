@@ -45,10 +45,7 @@ export default function CatalogPage() {
         </label>
         <label className="select-field">
           <span>Gênero</span>
-          <select
-            value={genre}
-            onChange={(event) => setGenre(event.target.value)}
-          >
+          <select value={genre} onChange={(event) => setGenre(event.target.value)}>
             <option value="todos">Todos os gêneros</option>
             {generos.map((item) => (
               <option key={item.id} value={item.id}>

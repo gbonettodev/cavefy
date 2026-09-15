@@ -13,17 +13,19 @@ import {
 } from "lucide-react";
 import Field from "../components/Field";
 import PageIntro from "../components/PageIntro";
+import { useObjectUrl } from "../hooks/useObjectUrl";
+import { mediaUrl } from "../services/media";
 import { musicaSchema } from "../validation/schemas";
 export default function MusicFormPage({ editar = false }) {
   const { id } = useParams();
   const { musicas, generos, salvarMusica } = useOutletContext();
   const navigate = useNavigate();
-  const current = editar
-    ? musicas.find((item) => String(item.id) === id)
-    : null;
+  const current = editar ? musicas.find((item) => String(item.id) === id) : null;
   const [saving, setSaving] = useState(false);
-  const [coverPreview, setCoverPreview] = useState(current?.capa_url || "");
+  const [coverFile, setCoverFile] = useState(null);
   const [audioName, setAudioName] = useState("");
+  const newCoverPreview = useObjectUrl(coverFile);
+  const coverPreview = newCoverPreview || mediaUrl(current?.capa_url);
   const form = useForm({
     resolver: zodResolver(musicaSchema),
     defaultValues: current
@@ -49,9 +51,7 @@ export default function MusicFormPage({ editar = false }) {
         form.getValues("_files") || {},
         current?.id,
       );
-      toast.success(
-        editar ? "Música atualizada." : "Música adicionada ao catálogo.",
-      );
+      toast.success(editar ? "Música atualizada." : "Música adicionada ao catálogo.");
       navigate(`/musicas/${result.id}`);
     } catch (error) {
       toast.error(error.message);
@@ -64,10 +64,7 @@ export default function MusicFormPage({ editar = false }) {
     const field = event.target.name;
     if (!selected) return;
     const validAudio = /\.(mp3|wav|ogg)$/i.test(selected.name);
-    if (
-      field === "audio" &&
-      (!validAudio || selected.size > 25 * 1024 * 1024)
-    ) {
+    if (field === "audio" && (!validAudio || selected.size > 25 * 1024 * 1024)) {
       toast.error(
         !validAudio
           ? "Escolha um arquivo MP3, WAV ou OGG."
@@ -76,21 +73,30 @@ export default function MusicFormPage({ editar = false }) {
       event.target.value = "";
       return;
     }
-    if (field === "capa" && selected.size > 5 * 1024 * 1024) {
-      toast.error("A capa precisa ter no máximo 5 MB.");
-      event.target.value = "";
-      return;
+    if (field === "capa") {
+      const validImage = ["image/jpeg", "image/png", "image/webp"].includes(
+        selected.type,
+      );
+      if (!validImage || selected.size > 5 * 1024 * 1024) {
+        toast.error(
+          validImage
+            ? "A capa precisa ter no máximo 5 MB."
+            : "Escolha uma imagem JPG, PNG ou WEBP.",
+        );
+        event.target.value = "";
+        return;
+      }
     }
     form.setValue("_files", {
       ...(form.getValues("_files") || {}),
       [field]: event.target.files,
     });
-    if (field === "capa") setCoverPreview(URL.createObjectURL(selected));
+    if (field === "capa") setCoverFile(selected);
     if (field === "audio") setAudioName(selected.name);
   }
   return (
     <div className="form-page">
-      <button className="back-link" onClick={() => navigate(-1)}>
+      <button className="back-link" type="button" onClick={() => navigate(-1)}>
         <ArrowLeft size={17} /> Cancelar
       </button>
       <PageIntro
@@ -112,15 +118,9 @@ export default function MusicFormPage({ editar = false }) {
               label="Título da música"
               error={form.formState.errors.titulo?.message}
             >
-              <input
-                {...form.register("titulo")}
-                placeholder="Ex.: Echoes in Stone"
-              />
+              <input {...form.register("titulo")} placeholder="Ex.: Echoes in Stone" />
             </Field>
-            <Field
-              label="Artista"
-              error={form.formState.errors.artista?.message}
-            >
+            <Field label="Artista" error={form.formState.errors.artista?.message}>
               <input
                 {...form.register("artista")}
                 placeholder="Ex.: The Stone Keepers"
@@ -132,10 +132,7 @@ export default function MusicFormPage({ editar = false }) {
                 placeholder="Nome do álbum ou single"
               />
             </Field>
-            <Field
-              label="Gênero"
-              error={form.formState.errors.genero_id?.message}
-            >
+            <Field label="Gênero" error={form.formState.errors.genero_id?.message}>
               <select {...form.register("genero_id")}>
                 <option value="">Escolha um gênero</option>
                 {generos.map((item) => (
@@ -146,11 +143,7 @@ export default function MusicFormPage({ editar = false }) {
               </select>
             </Field>
             <Field label="Ano de lançamento">
-              <input
-                type="number"
-                {...form.register("ano")}
-                placeholder="2026"
-              />
+              <input type="number" {...form.register("ano")} placeholder="2026" />
             </Field>
             <Field label="Duração (segundos)">
               <input
@@ -185,18 +178,12 @@ export default function MusicFormPage({ editar = false }) {
               />
               <div
                 className={`upload-preview ${coverPreview ? "has-image" : ""}`}
-                style={
-                  coverPreview
-                    ? { backgroundImage: `url(${coverPreview})` }
-                    : {}
-                }
+                style={coverPreview ? { backgroundImage: `url(${coverPreview})` } : {}}
               >
                 {!coverPreview && <Album size={26} />}
               </div>
               <div>
-                <strong>
-                  {coverPreview ? "Trocar capa" : "Adicionar capa"}
-                </strong>
+                <strong>{coverPreview ? "Trocar capa" : "Adicionar capa"}</strong>
                 <span>PNG, JPG ou WEBP · até 5 MB</span>
               </div>
               <Upload size={18} />
@@ -223,8 +210,8 @@ export default function MusicFormPage({ editar = false }) {
             </label>
           </div>
           <p className="helper-note">
-            <Sparkles size={15} /> Faixas sem MP3 continuam visíveis no
-            catálogo, mas não terão reprodução.
+            <Sparkles size={15} /> Faixas sem MP3 continuam visíveis no catálogo, mas
+            não terão reprodução.
           </p>
         </div>
         <div className="form-actions">
@@ -235,7 +222,7 @@ export default function MusicFormPage({ editar = false }) {
           >
             Cancelar
           </button>
-          <button className="button button-gold" disabled={saving}>
+          <button className="button button-gold" type="submit" disabled={saving}>
             {saving
               ? "Salvando..."
               : editar
