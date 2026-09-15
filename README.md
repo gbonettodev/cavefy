@@ -128,7 +128,7 @@ As telas não ficam concentradas em um único arquivo. Cada página tem responsa
 Na raiz do projeto, crie ou edite o arquivo `.env`:
 
 ```env
-VITE_API_URL=http://localhost:3001/api
+VITE_API_URL=http://localhost:3000/api
 ```
 
 Se a API estiver em outro endereço ou porta, altere esse valor. Como a variável começa com `VITE_`, ela é disponibilizada ao frontend durante o build.
@@ -143,7 +143,7 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=sua_senha_do_postgres
 DB_NAME=cavefy
-PORT=3001
+PORT=3000
 JWT_SECRET=troque-por-um-segredo-forte
 FRONTEND_URL=http://localhost:5173
 DB_SSL=false
@@ -185,9 +185,9 @@ npm run dev
 
 A API ficará disponível em:
 
-- `http://localhost:3001`
-- Health check: `http://localhost:3001/health`
-- Arquivos enviados: `http://localhost:3001/uploads/...`
+- `http://localhost:3000`
+- Health check: `http://localhost:3000/health`
+- Arquivos enviados: `http://localhost:3000/uploads/...`
 
 Para iniciar sem o Nodemon:
 
@@ -252,7 +252,7 @@ Usuários não autenticados são redirecionados para `/login` pelo `ProtectedRou
 
 ## API REST
 
-Todas as rotas abaixo usam o prefixo `http://localhost:3001`. Exceto `/health`, cadastro e login, as rotas exigem:
+Todas as rotas abaixo usam o prefixo `http://localhost:3000`. Exceto `/health`, cadastro e login, as rotas exigem:
 
 ```http
 Authorization: Bearer SEU_TOKEN_JWT
@@ -378,9 +378,9 @@ Ao iniciar, a API cria de forma não destrutiva a tabela de reproduções caso e
 
 ### “API offline” ou erro de conexão
 
-1. Verifique se o backend está rodando na porta `3001`.
-2. Abra `http://localhost:3001/health` e confirme o JSON com `status: "ok"`.
-3. Confirme se `VITE_API_URL` aponta para `http://localhost:3001/api`.
+1. Verifique se o backend está rodando na porta `3000`.
+2. Abra `http://localhost:3000/health` e confirme o JSON com `status: "ok"`.
+3. Confirme se `VITE_API_URL` aponta para `http://localhost:3000/api`.
 4. Reinicie o Vite após alterar o `.env`.
 
 ### Erro de banco de dados

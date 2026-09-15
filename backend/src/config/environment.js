@@ -23,7 +23,7 @@ const frontendOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
 
 export const env = Object.freeze({
   production,
-  port: Number(process.env.PORT) || 3001,
+  port: Number(process.env.PORT) || 3000,
   jwtSecret,
   frontendOrigins,
   database: {

@@ -43,8 +43,8 @@ export default function AppRouter() {
         }
       >
         <Routes>
-          <Route path="/login" element={<AuthPage />} />
-          <Route path="/cadastro" element={<AuthPage cadastro />} />
+          <Route path="/login" element={<AuthPage key="login" />} />
+          <Route path="/cadastro" element={<AuthPage key="cadastro" cadastro />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<ProtectedLayout />}>
               <Route path="/dashboard" element={<HomePage />} />

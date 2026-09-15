@@ -1,6 +1,0 @@
-dist
-node_modules
-backend/node_modules
-backend/uploads
-package-lock.json
-backend/package-lock.json
