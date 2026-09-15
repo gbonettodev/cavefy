@@ -6,10 +6,9 @@ Aplicação full stack para catalogar músicas, ouvir arquivos adicionados pelo 
 
 ## Visão geral
 
-O CAVEFY possui duas formas de uso:
+O CAVEFY funciona conectado à API REST e ao PostgreSQL:
 
 - **Modo conectado:** usa a API e o PostgreSQL para autenticação, catálogo, uploads e playlists.
-- **Modo demonstração:** funciona somente no frontend, usando `localStorage`, sem exigir API ou banco de dados.
 
 ### Funcionalidades
 
@@ -77,24 +76,19 @@ cavefy/
 │   └── uploads/
 │       ├── audios/            # Áudios enviados
 │       └── capas/             # Capas e fotos enviadas
-├── public/                    # Ícones públicos
+├── public/                    # Favicon público
 ├── src/
 │   ├── app/
 │   │   └── AppRouter.jsx      # Configuração das rotas do frontend
 │   ├── assets/                # Logo e imagem principal do CAVEFY
 │   ├── components/            # Componentes reutilizáveis
-│   ├── data/                  # Dados e persistência do modo demonstração
-│   ├── layouts/               # Layout protegido e estilos do layout
+│   ├── layouts/               # Estrutura compartilhada das páginas autenticadas
 │   ├── pages/                 # Uma página por arquivo
 │   ├── services/              # Comunicação com API e funções de mídia
 │   ├── store/                 # Estado global do usuário e player
+│   ├── styles/                # Estilos globais, layout, início e perfil
 │   ├── validation/            # Schemas do frontend
-│   ├── App.css                # Estilos principais
-│   ├── App.jsx                # Ponto de entrada compatível do App
-│   ├── hero-layout.css        # Layout visual da página inicial
-│   ├── index.css              # Reset e estilos globais
-│   ├── main.jsx               # Montagem do React
-│   └── profile-fixes.css      # Ajustes do perfil e dropdown
+│   └── main.jsx               # Montagem do React
 ├── .env                      # Configuração do frontend
 ├── package.json
 └── README.md
@@ -115,7 +109,8 @@ As telas não ficam concentradas em um único arquivo. Cada página tem responsa
 | `src/pages/PlaylistDetailsPage.jsx` | Faixas de uma playlist |
 | `src/pages/ProfilePage.jsx` | Nome e foto do perfil |
 | `src/layouts/ProtectedLayout.jsx` | Sidebar, header, conteúdo e player |
-| `src/components/` | Header, player, capas, linhas e formulários |
+| `src/components/` | Menu de perfil, player, capas, linhas e formulários |
+| `src/styles/` | Estilos separados por responsabilidade visual |
 | `src/services/` | `apiFetch`, URLs de mídia e utilitários |
 | `src/store/index.js` | Usuário, token, reproduções e player |
 
@@ -203,8 +198,7 @@ npm run dev
 
 Acesse `http://localhost:5173`.
 
-Na tela de login, o botão **Explorar modo demonstração** permite usar a interface mesmo com o backend desligado.
-
+A tela de login exige que a API esteja disponível para autenticar e carregar os dados do PostgreSQL.`n
 ## Scripts disponíveis
 
 ### Raiz do projeto
@@ -345,18 +339,7 @@ WHERE email = 'admin@exemplo.com';
 
 Os arquivos são gravados em `backend/uploads/audios` e `backend/uploads/capas`. Essa pasta não deve ser apagada se os registros do banco ainda apontarem para os arquivos.
 
-## Modo demonstração
-
-O modo demonstração não chama a API. Ele usa:
-
-- `cavefy_user` e `cavefy_token` para a sessão local;
-- `cavefy_demo_songs` para músicas adicionadas no modo demonstração;
-- `cavefy_demo_playlists` para playlists locais;
-- `cavefy_play_counts_<id>` para reproduções por usuário.
-
-No modo demonstração, músicas e playlists ficam salvas no navegador. Áudios grandes podem exceder o limite do `localStorage`; nesse caso, a interface avisa que o arquivo funcionará apenas enquanto a página estiver aberta.
-
-## Sessão e segurança
+## Banco de dados e persistência`n`nTodos os dados de negócio — usuários, músicas, gêneros e playlists — são carregados e persistidos pela API no PostgreSQL. O navegador mantém apenas o usuário e o token JWT da sessão para permitir a continuidade do login após atualizar a página.`n`n## Sessão e segurança
 
 - O backend gera tokens JWT com validade de 7 dias.
 - As senhas nunca são armazenadas em texto puro; são transformadas em hash com bcrypt.

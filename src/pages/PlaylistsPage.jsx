@@ -1,10 +1,198 @@
-import { useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { Album, ArrowRight, ListMusic, Plus, Play, Trash2, Upload, X } from 'lucide-react';
-import { apiFetch } from '../services/api';
-import { arquivoComoDataUrl, mediaUrl } from '../services/media';
-import { useCavefyStore } from '../store/index';
-import { demoPlaylistsKey } from '../data/demo';
-import PageIntro from '../components/PageIntro';
-export default function PlaylistsPage() { const { playlists, musicas, tocar, reload } = useOutletContext(); const token = useCavefyStore((state) => state.token); const demo = token === 'demo-token'; const navigate = useNavigate(); const [open, setOpen] = useState(false); const [name, setName] = useState(''); const [description, setDescription] = useState(''); const [coverFile, setCoverFile] = useState(null); const [coverPreview, setCoverPreview] = useState(''); async function submit(event) { event.preventDefault(); if (name.trim().length < 2) return toast.error('Digite um nome para a playlist.'); try { if (demo) { const capa_url = coverFile ? await arquivoComoDataUrl(coverFile) : ''; const nextPlaylists = [{ nome: name.trim(), descricao: description.trim(), capa_url, id: Date.now(), total_musicas: 0 }, ...playlists]; localStorage.setItem(demoPlaylistsKey, JSON.stringify(nextPlaylists)); } else { const body = new FormData(); body.append('nome', name.trim()); body.append('descricao', description.trim()); if (coverFile) body.append('capa', coverFile); await apiFetch('/playlists', { method: 'POST', body }, token); } await reload(); setName(''); setDescription(''); setCoverFile(null); setCoverPreview(''); setOpen(false); toast.success('Playlist criada.'); } catch (error) { toast.error(error.message); } } function handleCover(event) { const file = event.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) { toast.error('Escolha uma imagem de até 5 MB.'); event.target.value = ''; return; } setCoverFile(file); setCoverPreview(URL.createObjectURL(file)); } async function excluir(playlist) { if (!window.confirm(`Excluir a playlist “${playlist.nome}”?`)) return; try { if (demo) { const nextPlaylists = playlists.filter((item) => item.id !== playlist.id); localStorage.setItem(demoPlaylistsKey, JSON.stringify(nextPlaylists)); } else await apiFetch(`/playlists/${playlist.id}`, { method: 'DELETE' }, token); await reload(); toast.success('Playlist excluída.'); } catch (error) { toast.error(error.message); } } return <><PageIntro eyebrow="Sua biblioteca" title="Playlists" subtitle="Organize as faixas que contam a sua história." action={<button className="button button-gold" onClick={() => setOpen(true)}><Plus size={17} /> Nova playlist</button>} />{open && <div className="inline-form"><form onSubmit={submit}><button className="close-inline" type="button" onClick={() => setOpen(false)}><X size={17} /></button><span className="eyebrow">Nova coleção</span><h2>Dê um nome para o ritual.</h2><input value={name} onChange={(event) => setName(event.target.value)} autoFocus placeholder="Ex.: Domingo na caverna" /><input value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Descrição curta (opcional)" /><label className="playlist-upload"><input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleCover} /><div className="playlist-upload-preview" style={coverPreview ? { backgroundImage: `url(${coverPreview})` } : {}}>{!coverPreview && <Album size={22} />}</div><div><strong>{coverPreview ? 'Trocar capa' : 'Adicionar capa'}</strong><span>PNG, JPG ou WEBP · até 5 MB</span></div><Upload size={18} /></label><button className="button button-gold">Criar playlist <ArrowRight size={15} /></button></form></div>}<div className="playlist-grid">{playlists.map((playlist, index) => <article className={`playlist-card playlist-${index % 4}`} key={playlist.id} onClick={() => navigate(`/playlists/${playlist.id}`)}><div className="playlist-art" style={playlist.capa_url ? { backgroundImage: `url(${mediaUrl(playlist.capa_url)})` } : {}}>{!playlist.capa_url && <><ListMusic size={32} /><span>{String(playlist.id).padStart(2, '0')}</span></>}</div><div className="playlist-card-copy"><h2>{playlist.nome}</h2><p>{playlist.descricao || 'Uma seleção feita por você.'}</p><span>{playlist.total_musicas || 0} músicas</span></div><button className="playlist-delete" type="button" title="Excluir playlist" onClick={(event) => { event.stopPropagation(); excluir(playlist); }}><Trash2 size={15} /></button><button className="card-play playlist-play" onClick={(event) => { event.stopPropagation(); const playable = musicas.find((item) => item.audio_url); if (playable) tocar(playable, musicas); else toast.info('Adicione uma música com áudio para reproduzir a playlist.'); }}><Play size={18} fill="currentColor" /></button></article>)}{playlists.length === 0 && <div className="empty-state"><ListMusic size={30} /><h3>Sua biblioteca ainda está vazia</h3><p>Crie a primeira playlist para começar.</p></div>}</div></>; }
+import { useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  Album,
+  ArrowRight,
+  ListMusic,
+  Plus,
+  Play,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import { apiFetch } from "../services/api";
+import { mediaUrl } from "../services/media";
+import { useCavefyStore } from "../store/index";
+import PageIntro from "../components/PageIntro";
+export default function PlaylistsPage() {
+  const { playlists, musicas, tocar, reload } = useOutletContext();
+  const token = useCavefyStore((state) => state.token);
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState("");
+  async function submit(event) {
+    event.preventDefault();
+    if (name.trim().length < 2)
+      return toast.error("Digite um nome para a playlist.");
+    try {
+      const body = new FormData();
+      body.append("nome", name.trim());
+      body.append("descricao", description.trim());
+      if (coverFile) body.append("capa", coverFile);
+      await apiFetch("/playlists", { method: "POST", body }, token);
+      await reload();
+      setName("");
+      setDescription("");
+      setCoverFile(null);
+      setCoverPreview("");
+      setOpen(false);
+      toast.success("Playlist criada.");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+  function handleCover(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) {
+      toast.error("Escolha uma imagem de até 5 MB.");
+      event.target.value = "";
+      return;
+    }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  }
+  async function excluir(playlist) {
+    if (!window.confirm(`Excluir a playlist “${playlist.nome}”?`)) return;
+    try {
+      await apiFetch(`/playlists/${playlist.id}`, { method: "DELETE" }, token);
+      await reload();
+      toast.success("Playlist excluída.");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
+  return (
+    <>
+      <PageIntro
+        eyebrow="Sua biblioteca"
+        title="Playlists"
+        subtitle="Organize as faixas que contam a sua história."
+        action={
+          <button className="button button-gold" onClick={() => setOpen(true)}>
+            <Plus size={17} /> Nova playlist
+          </button>
+        }
+      />
+      {open && (
+        <div className="inline-form">
+          <form onSubmit={submit}>
+            <button
+              className="close-inline"
+              type="button"
+              onClick={() => setOpen(false)}
+            >
+              <X size={17} />
+            </button>
+            <span className="eyebrow">Nova coleção</span>
+            <h2>Dê um nome para o ritual.</h2>
+            <input
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoFocus
+              placeholder="Ex.: Domingo na caverna"
+            />
+            <input
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Descrição curta (opcional)"
+            />
+            <label className="playlist-upload">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleCover}
+              />
+              <div
+                className="playlist-upload-preview"
+                style={
+                  coverPreview
+                    ? { backgroundImage: `url(${coverPreview})` }
+                    : {}
+                }
+              >
+                {!coverPreview && <Album size={22} />}
+              </div>
+              <div>
+                <strong>
+                  {coverPreview ? "Trocar capa" : "Adicionar capa"}
+                </strong>
+                <span>PNG, JPG ou WEBP · até 5 MB</span>
+              </div>
+              <Upload size={18} />
+            </label>
+            <button className="button button-gold">
+              Criar playlist <ArrowRight size={15} />
+            </button>
+          </form>
+        </div>
+      )}
+      <div className="playlist-grid">
+        {playlists.map((playlist, index) => (
+          <article
+            className={`playlist-card playlist-${index % 4}`}
+            key={playlist.id}
+            onClick={() => navigate(`/playlists/${playlist.id}`)}
+          >
+            <div
+              className="playlist-art"
+              style={
+                playlist.capa_url
+                  ? { backgroundImage: `url(${mediaUrl(playlist.capa_url)})` }
+                  : {}
+              }
+            >
+              {!playlist.capa_url && (
+                <>
+                  <ListMusic size={32} />
+                  <span>{String(playlist.id).padStart(2, "0")}</span>
+                </>
+              )}
+            </div>
+            <div className="playlist-card-copy">
+              <h2>{playlist.nome}</h2>
+              <p>{playlist.descricao || "Uma seleção feita por você."}</p>
+              <span>{playlist.total_musicas || 0} músicas</span>
+            </div>
+            <button
+              className="playlist-delete"
+              type="button"
+              title="Excluir playlist"
+              onClick={(event) => {
+                event.stopPropagation();
+                excluir(playlist);
+              }}
+            >
+              <Trash2 size={15} />
+            </button>
+            <button
+              className="card-play playlist-play"
+              onClick={(event) => {
+                event.stopPropagation();
+                const playable = musicas.find((item) => item.audio_url);
+                if (playable) tocar(playable, musicas);
+                else
+                  toast.info(
+                    "Adicione uma música com áudio para reproduzir a playlist.",
+                  );
+              }}
+            >
+              <Play size={18} fill="currentColor" />
+            </button>
+          </article>
+        ))}
+        {playlists.length === 0 && (
+          <div className="empty-state">
+            <ListMusic size={30} />
+            <h3>Sua biblioteca ainda está vazia</h3>
+            <p>Crie a primeira playlist para começar.</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

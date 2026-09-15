@@ -1,7 +1,74 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
-import { ListPlus, X } from 'lucide-react';
-import { apiFetch } from '../services/api';
-import { useCavefyStore } from '../store/index';
-import { demoPlaylistsKey } from '../data/demo';
-export default function PlaylistPicker({ song, playlists, reload, onClose }) { const token = useCavefyStore((state) => state.token); const demo = token === 'demo-token'; const [selected, setSelected] = useState(playlists[0]?.id ? String(playlists[0].id) : ''); const [saving, setSaving] = useState(false); async function submit(event) { event.preventDefault(); if (!selected) return toast.info('Crie uma playlist antes de adicionar músicas.'); setSaving(true); try { if (demo) { const nextPlaylists = playlists.map((playlist) => { if (String(playlist.id) !== selected) return playlist; const musicIds = playlist.musica_ids || []; if (musicIds.some((musicId) => String(musicId) === String(song.id))) return playlist; return { ...playlist, musica_ids: [...musicIds, song.id], total_musicas: musicIds.length + 1 }; }); localStorage.setItem(demoPlaylistsKey, JSON.stringify(nextPlaylists)); } else await apiFetch(`/playlists/${selected}/musicas/${song.id}`, { method: 'POST' }, token); await reload(); toast.success('Música adicionada à playlist.'); onClose(); } catch (error) { toast.error(error.message); } finally { setSaving(false); } } return <div className="playlist-modal-backdrop" onClick={onClose}><div className="playlist-modal" role="dialog" aria-modal="true" aria-labelledby="playlist-picker-title" onClick={(event) => event.stopPropagation()}><button className="close-inline" type="button" onClick={onClose}><X size={17} /></button><span className="eyebrow">Sua biblioteca</span><h2 id="playlist-picker-title">Adicionar à playlist</h2><p>Escolha onde guardar “{song.titulo}”.</p>{playlists.length ? <form onSubmit={submit}><select aria-label="Escolher playlist" value={selected} onChange={(event) => setSelected(event.target.value)}>{playlists.map((playlist) => <option key={playlist.id} value={playlist.id}>{playlist.nome}</option>)}</select><button className="button button-gold" disabled={saving}>{saving ? 'Adicionando...' : 'Adicionar música'} <ListPlus size={16} /></button></form> : <p className="playlist-modal-empty">Você ainda não tem playlists. Crie uma em Playlists e tente novamente.</p>}</div></div>; }
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { ListPlus, X } from "lucide-react";
+import { apiFetch } from "../services/api";
+import { useCavefyStore } from "../store/index";
+export default function PlaylistPicker({ song, playlists, reload, onClose }) {
+  const token = useCavefyStore((state) => state.token);
+  const [selected, setSelected] = useState(
+    playlists[0]?.id ? String(playlists[0].id) : "",
+  );
+  const [saving, setSaving] = useState(false);
+  async function submit(event) {
+    event.preventDefault();
+    if (!selected)
+      return toast.info("Crie uma playlist antes de adicionar músicas.");
+    setSaving(true);
+    try {
+      await apiFetch(
+        `/playlists/${selected}/musicas/${song.id}`,
+        { method: "POST" },
+        token,
+      );
+      await reload();
+      toast.success("Música adicionada à playlist.");
+      onClose();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+  return (
+    <div className="playlist-modal-backdrop" onClick={onClose}>
+      <div
+        className="playlist-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="playlist-picker-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button className="close-inline" type="button" onClick={onClose}>
+          <X size={17} />
+        </button>
+        <span className="eyebrow">Sua biblioteca</span>
+        <h2 id="playlist-picker-title">Adicionar à playlist</h2>
+        <p>Escolha onde guardar “{song.titulo}”.</p>
+        {playlists.length ? (
+          <form onSubmit={submit}>
+            <select
+              aria-label="Escolher playlist"
+              value={selected}
+              onChange={(event) => setSelected(event.target.value)}
+            >
+              {playlists.map((playlist) => (
+                <option key={playlist.id} value={playlist.id}>
+                  {playlist.nome}
+                </option>
+              ))}
+            </select>
+            <button className="button button-gold" disabled={saving}>
+              {saving ? "Adicionando..." : "Adicionar música"}{" "}
+              <ListPlus size={16} />
+            </button>
+          </form>
+        ) : (
+          <p className="playlist-modal-empty">
+            Você ainda não tem playlists. Crie uma em Playlists e tente
+            novamente.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
