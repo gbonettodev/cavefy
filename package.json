@@ -8,8 +8,6 @@
     "build": "node scripts/cleanDist.js && vite build",
     "lint": "oxlint src backend/src backend/test",
     "test:backend": "npm --prefix backend test",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "check": "npm run lint && npm run test:backend && npm run build",
     "preview": "vite preview"
   },
@@ -29,7 +27,6 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
     "oxlint": "^1.79.0",
-    "prettier": "^3.9.6",
     "vite": "^8.2.2"
   }
 }
