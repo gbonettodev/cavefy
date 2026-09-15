@@ -12,7 +12,7 @@ export default function CatalogPage() {
     () =>
       musicas.filter(
         (song) =>
-          `${song.titulo} ${song.artista} ${song.album}`
+          `${song.titulo} ${song.artista} ${song.album || ""}`
             .toLowerCase()
             .includes(search.toLowerCase()) &&
           (genre === "todos" || String(song.genero_id) === genre),

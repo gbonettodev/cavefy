@@ -172,15 +172,31 @@ export async function atualizar(req, res) {
 }
 
 export async function remover(req, res) {
-  const { rows } = await pool.query(
-    "DELETE FROM musicas WHERE id = $1 RETURNING id, capa_url, audio_url",
+  const existente = await pool.query(
+    "SELECT id, criado_por, capa_url, audio_url FROM musicas WHERE id = $1",
     [req.params.id],
   );
-  if (!rows[0]) return res.status(404).json({ mensagem: "Música não encontrada." });
+  const atual = existente.rows[0];
+
+  if (!atual) {
+    return res.status(404).json({ mensagem: "Música não encontrada." });
+  }
+
+  if (
+    atual.criado_por &&
+    atual.criado_por !== req.usuario.id &&
+    req.usuario.papel !== "administrador"
+  ) {
+    return res
+      .status(403)
+      .json({ mensagem: "Você só pode excluir músicas criadas por você." });
+  }
+
+  await pool.query("DELETE FROM musicas WHERE id = $1", [req.params.id]);
 
   await Promise.all([
-    removeStoredFile(rows[0].capa_url),
-    removeStoredFile(rows[0].audio_url),
+    removeStoredFile(atual.capa_url),
+    removeStoredFile(atual.audio_url),
   ]);
   return res.status(204).send();
 }

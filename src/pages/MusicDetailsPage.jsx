@@ -108,16 +108,18 @@ export default function MusicDetailsPage() {
           <strong>#{String(song.id).padStart(4, "0")}</strong>
         </div>
       </div>
-      <button
-        className="danger-link"
-        type="button"
-        onClick={async () => {
-          const excluida = await excluirMusica(song.id);
-          if (excluida) navigate("/musicas");
-        }}
-      >
-        <Trash2 size={15} /> Excluir esta música
-      </button>
+      {podeEditar && (
+        <button
+          className="danger-link"
+          type="button"
+          onClick={async () => {
+            const excluida = await excluirMusica(song.id);
+            if (excluida) navigate("/musicas");
+          }}
+        >
+          <Trash2 size={15} /> Excluir esta música
+        </button>
+      )}
       {showPlaylistPicker && (
         <PlaylistPicker
           song={song}
