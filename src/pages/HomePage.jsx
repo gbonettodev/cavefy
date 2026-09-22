@@ -1,4 +1,4 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom"; //imports
 import { ArrowRight, Music2, Play, Plus, Sparkles } from "lucide-react";
 import { useCavefyStore } from "../store/index";
 import { mediaUrl, primeiroNome } from "../services/media";
