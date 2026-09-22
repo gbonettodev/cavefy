@@ -1,10 +1,8 @@
 import app from "./app.js";
 import { env } from "./config/environment.js";
 import pool from "./database/connection.js";
-import { ensureRuntimeSchema } from "./database/schema.js";
 
 async function start() {
-  await ensureRuntimeSchema();
   const server = app.listen(env.port, () => {
     console.log(`CAVEFY API rodando em http://localhost:${env.port}`);
   });
